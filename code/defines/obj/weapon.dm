@@ -416,6 +416,7 @@
 	w_class = ITEMSIZE_NORMAL
 	storage_slots = 400
 	max_w_class = ITEMSIZE_NORMAL
+	max_storage_space = 300
 	works_from_distance = 1
 
 /obj/item/weapon/stock_parts
