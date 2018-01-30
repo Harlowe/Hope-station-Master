@@ -19,10 +19,10 @@ datum/controller/transfer_controller/proc/process()
 	if (round_duration_in_ticks >= shift_last_vote - 2 MINUTES) //VOREStation Edit START
 		shift_last_vote = 999999999999 //Setting to a stupidly high number since it'll be not used again.
 		world << "Warning: This upcoming extend vote will be your ONE and ONLY Transfer vote for the next ten hours. Wrap up your scenes if the vote succeeds." //VOREStation Edit
-	if (round_duration_in_ticks >= shift_hard_end - 1 MINUTE)
+	/*if (round_duration_in_ticks >= shift_hard_end - 1 MINUTE)
 		init_shift_change(null, 1)
 		shift_hard_end = timerbuffer + config.vote_autotransfer_interval //If shuttle somehow gets recalled, let's force it to call again next time a vote would occur.
 		timerbuffer = timerbuffer + config.vote_autotransfer_interval //Just to make sure a vote doesn't occur immediately afterwords.
-	else if (round_duration_in_ticks >= timerbuffer - 1 MINUTE) //VOREStation Edit END
+	else if (round_duration_in_ticks >= timerbuffer - 1 MINUTE) //VOREStation Edit END */
 		vote.autotransfer()
 		timerbuffer = timerbuffer + config.vote_autotransfer_interval
