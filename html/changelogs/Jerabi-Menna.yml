@@ -1,0 +1,5 @@
+author: Jerabi
+delete-after: True
+changes:
+  - tweak: Made it so round doesn't end automatically
+  - rscdel: two annoying events that need a higer population to be fun.
