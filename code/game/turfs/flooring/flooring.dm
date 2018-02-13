@@ -108,6 +108,11 @@ var/list/flooring_types
 	icon_base = "blucarpet"
 	build_type = /obj/item/stack/tile/carpet/blucarpet
 
+/decl/flooring/carpet/bpcarpet
+	name = "bp carpet"
+	icon_base = "bpcarpet"
+	build_type = /obj/item/stack/tile/carpet/bpcarpet
+
 /decl/flooring/carpet/turcarpet
 	name = "tur carpet"
 	icon_base = "turcarpet"

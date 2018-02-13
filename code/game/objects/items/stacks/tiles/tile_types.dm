@@ -92,6 +92,8 @@
 	icon_state = "tile-carpet"
 /obj/item/stack/tile/carpet/blucarpet
 	icon_state = "tile-carpet"
+/obj/item/stack/tile/carpet/bpcarpet
+	icon_state = "tile-carpet"
 /obj/item/stack/tile/carpet/turcarpet
 	icon_state = "tile-carpet"
 /obj/item/stack/tile/carpet/sblucarpet

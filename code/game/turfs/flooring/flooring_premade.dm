@@ -17,7 +17,7 @@
 /turf/simulated/floor/carpet/bpcarpet
 	name = "bp carpet"
 	icon_state = "bpcarpet"
-	initial_flooring = /decl/flooring/carpet
+	initial_flooring = /decl/flooring/carpet/bpcarpet
 
 // Legacy support for existing paths for blue carpet
 /turf/simulated/floor/carpet/blue
