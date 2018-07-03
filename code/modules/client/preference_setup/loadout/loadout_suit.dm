@@ -6,6 +6,10 @@
 	sort_category = "Suits and Overwear"
 	cost = 2
 
+/datum/gear/suit/greatcoat
+	display_name = "greatcoat"
+	path = /obj/item/clothing/suit/greatcoat
+
 /datum/gear/suit/leather_coat
 	display_name = "leather coat"
 	path = /obj/item/clothing/suit/leathercoat
@@ -85,6 +89,14 @@
 /datum/gear/suit/grey_trenchcoat
 	display_name = "trenchcoat, grey"
 	path = /obj/item/clothing/suit/storage/trench/grey
+
+datum/gear/suit/duster
+	display_name = "cowboy duster"
+	path = /obj/item/clothing/suit/storage/duster
+
+/datum/gear/suit/duster/New()
+	..()
+	gear_tweaks = list(gear_tweak_free_color_choice)
 
 /datum/gear/suit/hazard_vest
 	display_name = "hazard vest selection"
@@ -177,27 +189,22 @@
 /datum/gear/suit/roles/poncho/security
 	display_name = "poncho, security"
 	path = /obj/item/clothing/accessory/poncho/roles/security
-	allowed_roles = list("Head of Security", "Warden", "Detective", "Security Officer")
 
 /datum/gear/suit/roles/poncho/medical
 	display_name = "poncho, medical"
 	path = /obj/item/clothing/accessory/poncho/roles/medical
-	allowed_roles = list("Medical Doctor","Chief Medical Officer","Chemist","Paramedic","Geneticist", "Psychiatrist")
 
 /datum/gear/suit/roles/poncho/engineering
 	display_name = "poncho, engineering"
 	path = /obj/item/clothing/accessory/poncho/roles/engineering
-	allowed_roles = list("Chief Engineer","Atmospheric Technician", "Station Engineer")
 
 /datum/gear/suit/roles/poncho/science
 	display_name = "poncho, science"
 	path = /obj/item/clothing/accessory/poncho/roles/science
-	allowed_roles = list("Research Director","Scientist", "Roboticist", "Xenobiologist")
 
 /datum/gear/suit/roles/poncho/cargo
 	display_name = "poncho, cargo"
 	path = /obj/item/clothing/accessory/poncho/roles/cargo
-	allowed_roles = list("Quartermaster","Cargo Technician")
 
 /datum/gear/suit/roles/poncho/cloak/hos
 	display_name = "cloak, head of security"
@@ -380,18 +387,6 @@
 	display_name = "denim vest, corporate"
 	path = /obj/item/clothing/suit/storage/toggle/denim_jacket/nanotrasen/sleeveless
 
-/datum/gear/suit/service
-	display_name = "service jacket selection"
-	path = /obj/item/clothing/suit/storage/service
-
-/datum/gear/suit/service/New()
-	..()
-	var/list/services = list()
-	for(var/service_style in typesof(/obj/item/clothing/suit/storage/service))
-		var/obj/item/clothing/suit/storage/service/service = service_style
-		services[initial(service.name)] = service
-	gear_tweaks += new/datum/gear_tweak/path(sortAssoc(services))
-
 /datum/gear/suit/miscellaneous/kimono
 	display_name = "kimono"
 	path = /obj/item/clothing/suit/kimono
@@ -445,7 +440,7 @@
 /datum/gear/suit/snowsuit/medical
 	display_name = "snowsuit, medical"
 	path = /obj/item/clothing/suit/storage/snowsuit/medical
-	allowed_roles = list("Medical Doctor","Chief Medical Officer","Chemist","Paramedic","Geneticist", "Psychiatrist")
+	allowed_roles = list("Medical Doctor","Chief Medical Officer","Chemist","Paramedic","Geneticist", "Psychiatrist", "Search and Rescue")
 
 /datum/gear/suit/snowsuit/science
 	display_name = "snowsuit, science"
@@ -460,4 +455,4 @@
 /datum/gear/suit/snowsuit/cargo
 	display_name = "snowsuit, supply"
 	path = /obj/item/clothing/suit/storage/snowsuit/cargo
-	allowed_roles = list("Quartermaster","shaft Miner","Cargo Technician","Head of Personnel")
+	allowed_roles = list("Quartermaster","Shaft Miner","Cargo Technician","Head of Personnel")

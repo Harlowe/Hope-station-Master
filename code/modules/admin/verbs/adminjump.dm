@@ -21,7 +21,7 @@
 	else
 		alert("Admin jumping disabled")
 
-/client/proc/jumptoturf(var/turf/T in world)
+/client/proc/jumptoturf(var/turf/T in turfs)
 	set name = "Jump to Turf"
 	set category = "Admin"
 	if(!check_rights(R_ADMIN|R_MOD|R_DEBUG))
@@ -39,7 +39,7 @@
 /client/proc/jumptomob(var/mob/M in mob_list)
 	set category = "Admin"
 	set name = "Jump to Mob"
-
+	set popup_menu = FALSE //VOREStation Edit - Declutter.
 	if(!check_rights(R_ADMIN|R_MOD|R_DEBUG))
 		return
 

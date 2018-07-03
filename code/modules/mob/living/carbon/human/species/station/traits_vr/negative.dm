@@ -96,8 +96,46 @@
 	cost = -1
 	var_changes = list("flash_mod" = 2.0)
 
+/datum/trait/hollow
+	name = "Hollow Bones/Aluminum Alloy"
+	desc = "Your bones and robot limbs are much easier to break."
+	cost = -2 //I feel like this should be higher, but let's see where it goes
+
+/datum/trait/hollow/apply(var/datum/species/S,var/mob/living/carbon/human/H)
+	..(S,H)
+	for(var/obj/item/organ/external/O in H.organs)
+		O.min_broken_damage *= 0.5
+		O.min_bruised_damage *= 0.5
+
 /datum/trait/lightweight
 	name = "Lightweight"
 	desc = "Your light weight and poor balance make you very susceptible to unhelpful bumping. Think of it like a bowling ball versus a pin."
-	cost = -4
+	cost = -2
 	var_changes = list("lightweight" = 1)
+
+/datum/trait/colorblind/mono
+	name = "Colorblindness (Monochromancy)"
+	desc = "You simply can't see colors at all, period. You are 100% colorblind."
+	cost = -3
+
+/datum/trait/colorblind/mono/apply(var/datum/species/S,var/mob/living/carbon/human/H)
+	..(S,H)
+	H.add_modifier(/datum/modifier/trait/colorblind_mono)
+
+/datum/trait/colorblind/para_vulp
+	name = "Colorblindness (Para Vulp)"
+	desc = "You have a severe issue with green colors and have difficulty recognizing them from red colors."
+	cost = -2
+
+/datum/trait/colorblind/para_vulp/apply(var/datum/species/S,var/mob/living/carbon/human/H)
+	..(S,H)
+	H.add_modifier(/datum/modifier/trait/colorblind_vulp)
+
+/datum/trait/colorblind/para_taj
+	name = "Colorblindness (Para Taj)"
+	desc = "You have a minor issue with blue colors and have difficulty recognizing them from red colors."
+	cost = -1
+
+/datum/trait/colorblind/para_taj/apply(var/datum/species/S,var/mob/living/carbon/human/H)
+	..(S,H)
+	H.add_modifier(/datum/modifier/trait/colorblind_taj)

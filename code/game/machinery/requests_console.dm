@@ -23,11 +23,13 @@ var/req_console_information = list()
 var/list/obj/machinery/requests_console/allConsoles = list()
 
 /obj/machinery/requests_console
-	name = "Requests Console"
+	name = "requests console"
 	desc = "A console intended to send requests to different departments on the station."
 	anchored = 1
 	icon = 'icons/obj/terminals.dmi'
 	icon_state = "req_comp0"
+	plane = TURF_PLANE
+	layer = ABOVE_TURF_LAYER
 	circuit = /obj/item/weapon/circuitboard/request
 	var/department = "Unknown" //The list of all departments on the station (Determined from this variable on each unit) Set this to the same thing if you want several consoles in one department
 	var/list/message_log = list() //List of all messages
@@ -72,7 +74,7 @@ var/list/obj/machinery/requests_console/allConsoles = list()
 	announcement.title = "[department] announcement"
 	announcement.newscast = 1
 
-	name = "[department] Requests Console"
+	name = "[department] requests console"
 	allConsoles += src
 	if(departmentType & RC_ASSIST)
 		req_console_assistance |= department
@@ -166,7 +168,7 @@ var/list/obj/machinery/requests_console/allConsoles = list()
 		var/log_msg = message
 		var/pass = 0
 		screen = RCS_SENTFAIL
-		for (var/obj/machinery/message_server/MS in world)
+		for (var/obj/machinery/message_server/MS in machines)
 			if(!MS.active) continue
 			MS.send_rc_message(ckey(href_list["department"]),department,log_msg,msgStamped,msgVerified,priority)
 			pass = 1
@@ -208,15 +210,15 @@ var/list/obj/machinery/requests_console/allConsoles = list()
 	updateUsrDialog()
 	return
 
-					//err... hacking code, which has no reason for existing... but anyway... it was once supposed to unlock priority 3 messanging on that console (EXTREME priority...), but the code for that was removed.
+					//err... hacking code, which has no reason for existing... but anyway... it was once supposed to unlock priority 3 messaging on that console (EXTREME priority...), but the code for that was removed.
 /obj/machinery/requests_console/attackby(var/obj/item/weapon/O as obj, var/mob/user as mob)
 	if(computer_deconstruction_screwdriver(user, O))
 		return
 	if(istype(O, /obj/item/device/multitool))
 		if(panel_open)
-			var/input = sanitize(input(usr, "What Department id would you like to give this Request Console?", "Multitool-Request Console interface", department))
+			var/input = sanitize(input(usr, "What Department ID would you like to give this request console?", "Multitool-Request Console Interface", department))
 			if(!input)
-				usr << "No input found please hang up and try your call again."
+				to_chat(usr, "No input found. Please hang up and try your call again.")
 				return
 			department = input
 			announcement.title = "[department] announcement"

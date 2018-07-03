@@ -1,6 +1,7 @@
 /obj/machinery/portable_atmospherics
 	name = "atmoalter"
 	use_power = 0
+	layer = OBJ_LAYER // These are mobile, best not be under everything.
 	var/datum/gas_mixture/air_contents = new
 
 	var/obj/machinery/atmospherics/portables_connector/connected_port
@@ -39,6 +40,9 @@
 		air_contents.react()
 	else
 		update_icon()
+
+/obj/machinery/portable_atmospherics/blob_act()
+	qdel(src)
 
 /obj/machinery/portable_atmospherics/proc/StandardAirMix()
 	return list(

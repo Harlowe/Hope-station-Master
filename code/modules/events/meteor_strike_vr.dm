@@ -4,7 +4,8 @@
 
 /datum/event/meteor_strike/setup()
 	startWhen = rand(8,15)
-	strike_target = pick(get_area_turfs(/area/tether/surfacebase/outside/outside3))
+	if(LAZYLEN(using_map.meteor_strike_areas))
+		strike_target = pick(get_area_turfs(pick(using_map.meteor_strike_areas)))
 
 	if(!strike_target)
 		kill()
@@ -49,7 +50,7 @@
 	new /obj/structure/meteorite(current)
 
 	var/datum/planet/impacted
-	for(var/datum/planet/P in planet_controller.planets)
+	for(var/datum/planet/P in SSplanets.planets)
 		if(current.z in P.expected_z_levels)
 			impacted = P
 			break

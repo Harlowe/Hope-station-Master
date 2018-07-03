@@ -23,7 +23,6 @@
 
 /obj/machinery/atmospherics/unary/freezer/New()
 	..()
-	initialize_directions = dir
 	component_parts = list()
 	component_parts += new /obj/item/weapon/stock_parts/matter_bin(src)
 	component_parts += new /obj/item/weapon/stock_parts/capacitor(src)
@@ -32,25 +31,22 @@
 	component_parts += new /obj/item/stack/cable_coil(src, 2)
 	RefreshParts()
 
-/obj/machinery/atmospherics/unary/freezer/initialize()
+/obj/machinery/atmospherics/unary/freezer/atmos_init()
 	if(node)
 		return
 
 	var/node_connect = dir
 
 	for(var/obj/machinery/atmospherics/target in get_step(src, node_connect))
-		if(target.initialize_directions & get_dir(target, src))
+		if(can_be_node(target, 1))
 			node = target
 			break
 
-	//copied from pipe construction code since heaters/freezers don't use fittings and weren't doing this check - this all really really needs to be refactored someday.
-	//check that there are no incompatible pipes/machinery in our own location
-	for(var/obj/machinery/atmospherics/M in src.loc)
-		if(M != src && (M.initialize_directions & node_connect) && M.check_connect_types(M,src))	// matches at least one direction on either type of pipe & same connection type
-			node = null
-			break
+	if(check_for_obstacles())
+		node = null
 
-	update_icon()
+	if(node)
+		update_icon()
 
 /obj/machinery/atmospherics/unary/freezer/update_icon()
 	if(node)

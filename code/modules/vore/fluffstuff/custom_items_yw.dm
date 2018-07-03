@@ -76,6 +76,20 @@
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	attack_verb = list("stabbed", "pierced", "jabbed", "torn", "gored")
 
+/obj/item/toy/bosunwhistle/fluff/strix
+	name = "Authentic Bosun's Whistle"
+	desc = "A authentic boatswain's call that appears to be silver plated! The noise it makes is ungodly loud and high pitched.. Why would a person with four extra-sensitive ears ever own such a thing!?"
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "strixwhistle"
+	w_class = ITEMSIZE_TINY
+	slot_flags = SLOT_EARS | SLOT_HOLSTER
+
+/obj/item/toy/bosunwhistle/fluff/strix/attack_self(mob/user as mob)
+	if(cooldown < world.time - 15)
+		user << "<span class='notice'>You blow on [src], creating an ear-splitting noise!</span>"
+		playsound(user, 'sound/misc/boatswain.ogg', 25, 1)
+		cooldown = world.time
+
 // *************
 // GeneralPantsu
 // *************
@@ -214,7 +228,7 @@
 	full_message = list("Your breasts ache badly - they are swollen and feel fit to burst!", "You need to be milked! Your breasts feel bloated, eager for release.", "Your milky breasts are starting to leak...")
 	emote_descriptor = list("squeezes Mira's nipples, milking them", "milks Mira's breasts", "extracts milk")
 	self_emote_descriptor = list("squeeze out", "extract")
-	random_emote = list("surpresses a moan", "gasps sharply", "bites her lower lip")
+	random_emote = list("supresses a moan", "gasps sharply", "bites her lower lip")
 	verb_name = "Milk"
 	verb_desc = "Grab Mira's breasts and milk her, storing her fresh, warm milk in a container. This will undoubtedly turn her on."
 
@@ -232,12 +246,71 @@
 	full_message = list("Your breasts ache badly - they are swollen and feel fit to burst!", "You need to be milked! Your breasts feel bloated, eager for release.", "Your milky breasts are starting to leak...")
 	emote_descriptor = list("squeezes Natalya's nipples, milking them", "milks Natalya's breasts", "extracts milk")
 	self_emote_descriptor = list("squeeze out", "extract")
-	random_emote = list("surpresses a moan", "gasps sharply", "bites her lower lip")
+	random_emote = list("supresses a moan", "gasps sharply", "bites her lower lip")
 	verb_name = "Milk"
 	verb_desc = "Grab Natalya's breasts and milk her, storing her fresh, warm milk in a container. This will undoubtedly turn her on."
 
 /obj/item/weapon/implanter/reagent_generator/natalya
 	implant_type = /obj/item/weapon/implant/reagent_generator/tempest/natalya
+
+//Eryn Wolfe
+
+/obj/item/weapon/fluff/chemset
+	name = "Eryn's chemistry set"
+	desc = "A small box with a open compartment, some buttons, a disk drive, and flashing lights. On the back is a small metal plaque with the name 'Eryn Wofle' on it."
+	w_class = 1.0
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "chemset"
+
+//Mitsuko Jiao
+
+/obj/item/device/modkit_conversion/fluff/jiao_anynlizer_kit/a
+	name = "Mitsuko's modkit Mk1"
+	desc = "A kit containing all the needed tools and parts to modify a heath analyzer. It has a Emblem painted on it."
+
+	icon = 'icons/vore/custom_items_vr.dmi'
+	icon_state = "modkit"
+
+	from_suit = /obj/item/device/healthanalyzer
+	to_suit = /obj/item/device/healthanalyzer/fluff/jiao_health
+
+/obj/item/device/modkit_conversion/fluff/jiao_anynlizer_kit/b
+	name = "Mitsuko's modkit Mk2"
+	desc = "A kit containing all the needed tools and parts to modify a heath analyzer. It has a Emblem painted on it."
+
+	icon = 'icons/vore/custom_items_vr.dmi'
+	icon_state = "modkit"
+
+	from_suit = /obj/item/device/healthanalyzer/improved
+	to_suit = /obj/item/device/healthanalyzer/improved/fluff/jiao_health
+
+/obj/item/device/modkit_conversion/fluff/jiao_anynlizer_kit/c
+	name = "Mitsuko's modkit Mk3"
+	desc = "A kit containing all the needed tools and parts to modify a heath analyzer. It has a Emblem painted on it."
+
+	icon = 'icons/vore/custom_items_vr.dmi'
+	icon_state = "modkit"
+
+	from_suit = /obj/item/device/healthanalyzer/advanced
+	to_suit = /obj/item/device/healthanalyzer/advanced/fluff/jiao_health
+
+/obj/item/device/healthanalyzer/fluff/jiao_health
+	name = "Kanghu medical scanner MK1"
+	desc = "A Modified medical scanner, all the main components are compacted into the handle. This one is a basic unit."
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "scanner_mk1"
+
+/obj/item/device/healthanalyzer/improved/fluff/jiao_health
+	name = "Kanghu medical scanner MK2"
+	desc = "A Modified medical scanner, all the main components are compacted into the handle. This one is a improved unit."
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "scanner_mk2"
+
+/obj/item/device/healthanalyzer/advanced/fluff/jiao_health
+	name = "Kanghu medical scanner MK3"
+	desc = "A Modified medical scanner, all the main components are compacted into the handle. This one is a advanced unit."
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "scanner_mk3"
 
 // **************
 // VanesaFancyFin
@@ -256,3 +329,134 @@
 		slot_l_hand_str = 'icons/vore/custom_items_left_hand_yw.dmi',
 		slot_r_hand_str = 'icons/vore/custom_items_right_hand_yw.dmi',
 		)
+
+// **************
+// Belsima
+// **************
+
+//I'm going to fix this code later.
+
+/obj/item/weapon/implant/reagent_generator/belle/ysaline
+	name = "lactation implant"
+	desc = "This is an implant that allows the user to lactate."
+	usable_volume = 1000
+
+	empty_message = list("Your breasts feel unusually empty.", "Your chest feels lighter - your milk supply is empty!", "Your milk reserves have run dry.", "Your grateful nipples ache as the last of your milk leaves them.")
+	full_message = list("Your breasts ache badly - they are swollen and feel fit to burst!", "You need to be milked! Your breasts feel bloated, eager for release.", "Your milky breasts are starting to leak...")
+	emote_descriptor = list("squeezes Ysaline's nipples, milking them", "milks Ysaline's breasts", "tugs at Ysaline's breasts")
+	self_emote_descriptor = list("squeeze out", "extract")
+	random_emote = list("supresses a moan", "gasps sharply", "bites her lower lip")
+	verb_name = "Milk"
+	verb_desc = "Grab Ysaline's breasts and milk her, storing her fresh, warm milk in a container. This will undoubtedly turn her on."
+
+// **************
+// Trash
+// **************
+/obj/item/weapon/fluff/fidgetspinner
+	name = "Fidget spinner"
+	desc = "A spinning stress relief toy, upsetting family, friends, and employers for 500 years."
+	w_class = 1.0
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "fidgetspinner"
+	var/basestate = "fidgetspinner"
+
+/obj/item/weapon/fluff/fidgetspinner/red
+	name = "Red fidget spinner"
+	desc = "A spinning stress relief toy, upsetting family, friends, and employers for 500 years. This one is red"
+	w_class = 1.0
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "fidgetspinnerr"
+	basestate = "fidgetspinnerr"
+
+/obj/item/weapon/fluff/fidgetspinner/yellow
+	name = "Yellow fidget spinner"
+	desc = "A spinning stress relief toy, upsetting family, friends, and employers for 500 years. This one is yellow"
+	w_class = 1.0
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "fidgetspinnery"
+	basestate = "fidgetspinnery"
+
+/obj/item/weapon/fluff/fidgetspinner/attack_self(mob/living/user)
+	if(user.r_hand == src || user.l_hand == src)
+		if(icon_state != "[basestate]-s")
+			icon_state = "[basestate]-s"
+			user.visible_message("<span class='rose'>[user] spins the [src]!</span>")
+			spawn(100)
+				icon_state = "[basestate]"
+	else
+		return ..()
+	return
+
+/obj/item/weapon/fluff/squeezetoy
+	name = "Stress relief squeeze toy"
+	desc = "A toy squeezed to relieve stress, it’s squeaker appears to be broken from over use."
+	w_class = 1.0
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "squeezetoy"
+
+/obj/item/weapon/fluff/squeezetoy/attack_self(mob/living/user)
+	if(user.r_hand == src || user.l_hand == src)
+		if(icon_state != "squeezetoy-s")
+			icon_state = "squeezetoy-s"
+			user.visible_message("<span class='rose'>[user] squeezes the [src] a few times!</span>")
+			spawn(50)
+				icon_state = "squeezetoy"
+	else
+		return ..()
+	return
+
+/obj/item/weapon/fluff/dimensioncube
+	var/folded = 1
+	name = "Infinity cube"
+	desc = "All the fun of a puzzle cube without any of the challenge, a good way to relieve stress and delude yourself into a sense of accomplishment."
+	w_class = 1.0
+	icon = 'icons/vore/custom_items_yw.dmi'
+	icon_state = "infinitycube0"
+
+/obj/item/weapon/fluff/dimensioncube/attack_self(mob/living/user)
+	if(user.r_hand == src || user.l_hand == src)
+		if(folded == 0)
+			icon_state = "infinitycube0"
+			user.visible_message("<span class='rose'>[user] folds the [src]!</span>")
+			folded = 1
+		else if(folded == 1)
+			icon_state = "infinitycube1"
+			user.visible_message("<span class='rose'>[user] unfolds the [src]!</span>")
+			folded = 0
+	else
+		return ..()
+	return
+
+// **************
+// SASOperative
+// **************
+
+/obj/item/device/modkit_conversion/fluff/skinner/a
+	name = "Joseph's modkit Mk1"
+	desc = "A kit containing all the needed tools and parts to modify a security jumpsuit."
+
+	icon = 'icons/vore/custom_items_vr.dmi'
+	icon_state = "modkit"
+
+	from_suit = /obj/item/clothing/under/rank/security
+	to_suit = /obj/item/clothing/under/rank/security/fluff/skinner
+
+/obj/item/device/modkit_conversion/fluff/skinner/b
+	name = "Joseph's modkit Mk2"
+	desc = "A kit containing all the needed tools and parts to modify a security armor."
+
+	icon = 'icons/vore/custom_items_vr.dmi'
+	icon_state = "modkit"
+
+	from_suit = /obj/item/clothing/suit/armor/vest
+	to_suit = /obj/item/clothing/suit/armor/vest/fluff/skinner
+
+/obj/item/device/modkit_conversion/fluff/skinner/c
+	name = "Joseph's modkit Mk3"
+	desc = "A kit containing all the needed tools and parts to modify a security helmet."
+
+	icon = 'icons/vore/custom_items_vr.dmi'
+	icon_state = "modkit"
+
+	from_suit = /obj/item/clothing/head/helmet
+	to_suit = /obj/item/clothing/head/helmet/fluff/skinner

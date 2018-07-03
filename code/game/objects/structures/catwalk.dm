@@ -1,22 +1,24 @@
 // Based on catwalk.dm from https://github.com/Endless-Horizon/CEV-Eris
 /obj/structure/catwalk
-	layer = TURF_LAYER + 0.5
-	icon = 'icons/turf/catwalks.dmi'
-	icon_state = "catwalk"
 	name = "catwalk"
 	desc = "Cats really don't like these things."
+	plane = DECAL_PLANE
+	layer = ABOVE_UTILITY
+	icon = 'icons/turf/catwalks.dmi'
+	icon_state = "catwalk"
 	density = 0
 	var/health = 100
 	var/maxhealth = 100
 	anchored = 1.0
 
 /obj/structure/catwalk/initialize()
+	. = ..()
 	for(var/obj/structure/catwalk/O in range(1))
 		O.update_icon()
 	for(var/obj/structure/catwalk/C in get_turf(src))
 		if(C != src)
 			warning("Duplicate [type] in [loc] ([x], [y], [z])")
-			qdel(C)
+			return INITIALIZE_HINT_QDEL
 	update_icon()
 
 /obj/structure/catwalk/Destroy()
@@ -81,7 +83,7 @@
 				health = maxhealth
 	else
 		take_damage(C.force)
-		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+		user.setClickCooldown(user.get_attack_speed(C))
 	return ..()
 
 /obj/structure/catwalk/Crossed()

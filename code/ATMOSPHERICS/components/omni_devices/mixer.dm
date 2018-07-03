@@ -4,6 +4,7 @@
 /obj/machinery/atmospherics/omni/mixer
 	name = "omni gas mixer"
 	icon_state = "map_mixer"
+	pipe_state = "omni_mixer"
 
 	use_power = 1
 	idle_power_usage = 150		//internal circuitry, friction losses and stuff
@@ -52,7 +53,7 @@
 /obj/machinery/atmospherics/omni/mixer/Destroy()
 	inputs.Cut()
 	output = null
-	..()
+	. = ..()
 
 /obj/machinery/atmospherics/omni/mixer/sort_ports()
 	for(var/datum/omni_port/P in ports)

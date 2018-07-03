@@ -37,6 +37,7 @@
 			/obj/item/weapon/storage/box/glasses/shake,
 			/obj/item/weapon/storage/box/glasses/shot,
 			/obj/item/weapon/storage/box/glasses/mug,
+			/obj/item/weapon/storage/box/glasses/meta,
 			/obj/item/weapon/reagent_containers/food/drinks/shaker,
 			/obj/item/weapon/storage/box/glass_extras/straws,
 			/obj/item/weapon/storage/box/glass_extras/sticks
@@ -60,3 +61,17 @@
 	cost = 15
 	containertype = /obj/structure/closet/crate/freezer
 	containername = "Pizza crate"
+
+/datum/supply_packs/hospitality/gifts
+	name = "Gift crate"
+	contains = list(
+		/obj/item/toy/bouquet = 3,
+		/obj/item/weapon/storage/fancy/heartbox = 2,
+		/obj/item/weapon/paper/card/smile,
+		/obj/item/weapon/paper/card/heart,
+		/obj/item/weapon/paper/card/cat,
+		/obj/item/weapon/paper/card/flower
+		)
+	cost = 10
+	containertype = /obj/structure/closet/crate
+	containername = "crate of gifts"

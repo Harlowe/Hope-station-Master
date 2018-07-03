@@ -24,6 +24,7 @@
 	idle_power_usage = 150		//internal circuitry, friction losses and stuff
 	power_rating = 7500			//7500 W ~ 10 HP
 
+	pipe_flags = PIPING_ALL_LAYER
 	connect_types = CONNECT_TYPE_REGULAR|CONNECT_TYPE_SUPPLY|CONNECT_TYPE_SCRUBBER //connects to regular, supply and scrubbers pipes
 
 	var/pump_direction = 1 //0 = siphoning, 1 = releasing
@@ -46,6 +47,10 @@
 	air1.volume = ATMOS_DEFAULT_VOLUME_PUMP
 	air2.volume = ATMOS_DEFAULT_VOLUME_PUMP
 	icon = null
+
+/obj/machinery/atmospherics/binary/dp_vent_pump/Destroy()
+	unregister_radio(src, frequency)
+	. = ..()
 
 /obj/machinery/atmospherics/binary/dp_vent_pump/high_volume
 	name = "Large Dual Port Air Vent"
@@ -190,7 +195,7 @@
 	return 1
 
 /obj/machinery/atmospherics/binary/dp_vent_pump/initialize()
-	..()
+	. = ..()
 	if(frequency)
 		set_frequency(frequency)
 

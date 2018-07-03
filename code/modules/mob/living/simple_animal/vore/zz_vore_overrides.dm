@@ -59,20 +59,28 @@
 	icon_gib = "gibbed-a"
 	vore_icons = SA_ICON_LIVING
 
-/mob/living/simple_animal/hostile/alien/queen/large
+/mob/living/simple_animal/hostile/alien/queen/empress
 	vore_active = 1
 	icon = 'icons/mob/vore64x64.dmi'
 	icon_state = "queen_s"
 	icon_living = "queen_s"
 	icon_dead = "queen_dead"
-	vore_icons = SA_ICON_LIVING
+	vore_icons = SA_ICON_LIVING | SA_ICON_REST
 	old_x = -16
 	old_y = 0
+	default_pixel_x = -16
 	pixel_x = -16
 	pixel_y = 0
 
 	vore_capacity = 3
 	vore_pounce_chance = 75
+
+/mob/living/simple_animal/hostile/alien/sentinel/praetorian
+	icon = 'icons/mob/vore64x64.dmi'
+	vore_icons = SA_ICON_LIVING | SA_ICON_REST
+
+/mob/living/simple_animal/hostile/alien/queen/empress/mother
+	vore_icons = 0 // NO VORE SPRITES
 
 /mob/living/simple_animal/hostile/bear
 	vore_active = 1
@@ -149,6 +157,20 @@
 		return null
 	return ..()
 
+/mob/living/simple_animal/cat/fluff
+	vore_ignores_undigestable = 0
+	vore_pounce_chance = 100
+	vore_digest_chance = 0 // just use the toggle
+	vore_default_mode = DM_HOLD //can use the toggle if you wanna be catfood
+
+/mob/living/simple_animal/cat/fluff/EatTarget()
+	var/mob/living/TM = target_mob
+	prey_excludes += TM //so they won't immediately re-eat someone who struggles out (or gets newspapered out) as soon as they're ate
+	spawn(3600) // but if they hang around and get comfortable, they might get ate again
+		if(src && TM)
+			prey_excludes -= TM
+	..() // will_eat check is carried out before EatTarget is called, so prey on the prey_excludes list isn't a problem.
+
 /mob/living/simple_animal/fox
 	vore_active = 1
 	// NO VORE SPRITES
@@ -174,6 +196,20 @@
 		return null
 	return ..()
 
+/mob/living/simple_animal/fox/fluff
+	vore_ignores_undigestable = 0
+	vore_pounce_chance = 100
+	vore_digest_chance = 0 // just use the toggle
+	vore_default_mode = DM_HOLD //can use the toggle if you wanna be foxfood
+
+/mob/living/simple_animal/fox/fluff/EatTarget()
+	var/mob/living/TM = target_mob
+	prey_excludes += TM //so they won't immediately re-eat someone who struggles out (or gets newspapered out) as soon as they're ate
+	spawn(3600) // but if they hang around and get comfortable, they might get ate again
+		if(src && TM)
+			prey_excludes -= TM
+	..() // will_eat check is carried out before EatTarget is called, so prey on the prey_excludes list isn't a problem.
+
 /mob/living/simple_animal/hostile/goose
 	vore_active = 1
 	// NO VORE SPRITES
@@ -191,11 +227,22 @@
 
 /mob/living/simple_animal/hostile/carp/holodeck
 	vore_icons = 0 // NO VORE SPRITES
+	vore_digest_chance = 0
+	vore_absorb_chance = 0
+
 // Override stuff for holodeck carp to make them not digest when set to safe!
+/mob/living/simple_animal/hostile/carp/holodeck/init_vore()
+	. = ..()
+	var/safe = (faction == "neutral")
+	for(var/belly in vore_organs)
+		var/obj/belly/B = belly
+		B.digest_mode = safe ? DM_HOLD : vore_default_mode
+
 /mob/living/simple_animal/hostile/carp/holodeck/set_safety(var/safe)
 	. = ..()
-	for(var/I in vore_organs)
-		var/datum/belly/B = vore_organs[I]
+	for(var/belly in vore_organs)
+		var/obj/belly/B = belly
 		B.digest_mode = safe ? DM_HOLD : vore_default_mode
-		B.digestchance = safe ? 0 : vore_digest_chance
-		B.absorbchance = safe ? 0 : vore_absorb_chance
+
+/mob/living/simple_animal/mouse
+	faction = "mouse" //Giving mice a faction so certain mobs can get along with them.

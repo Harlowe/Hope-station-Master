@@ -1,16 +1,13 @@
 
 /datum/species
 	//var/vore_numbing = 0
-	var/gets_food_nutrition = 1 // If this is set to 0, the person can't get nutrrition from food.
-	var/can_drain_prey = 0 //Determines if the person can use the succubus drain or not.
-	var/hard_vore_enabled = 0 //Determines if the person has the hardvore verb or not.
+	var/gets_food_nutrition = 1 // If this is set to 0, the person can't get nutrition from food.
 	var/metabolism = 0.0015
-	var/can_fly = 0 //Determines if the species can fly if they have wings.
 	var/lightweight = 0 //Oof! Nonhelpful bump stumbles.
 	var/trashcan = 0 //It's always sunny in the wrestling ring.
 
 /datum/species/custom
-	name = "Custom Species"
+	name = SPECIES_CUSTOM
 	name_plural = "Custom"
 	var/base_species = "Human"
 
@@ -79,6 +76,8 @@
 	new_copy.damage_mask = to_copy.damage_mask
 	new_copy.damage_overlays = to_copy.damage_overlays
 	new_copy.traits = traits
+	new_copy.move_trail = move_trail
+	new_copy.has_floating_eyes = has_floating_eyes
 
 	//If you had traits, apply them
 	if(new_copy.traits)
@@ -88,7 +87,6 @@
 
 	//Set up a mob
 	H.species = new_copy
-	H.icon_state = lowertext(new_copy.get_bodytype())
 
 	if(new_copy.holder_type)
 		H.holder_type = new_copy.holder_type

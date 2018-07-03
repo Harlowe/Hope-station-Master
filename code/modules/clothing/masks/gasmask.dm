@@ -28,6 +28,12 @@
 
 	return gas_filtered
 
+/obj/item/clothing/mask/gas/clear
+	name = "gas mask"
+	desc = "A face-covering mask with a transparent faceplate that can be connected to an air supply."
+	icon_state = "gas_clear"
+	flags_inv = null
+
 /obj/item/clothing/mask/gas/half
 	name = "face mask"
 	desc = "A compact, durable gas mask that can be connected to an air supply."
@@ -59,7 +65,7 @@
 	body_parts_covered = 0 //Hack to allow vox to eat while wearing this mask.
 	item_flags = BLOCK_GAS_SMOKE_EFFECT | AIRTIGHT | PHORONGUARD
 	phoronproof = 1
-	species_restricted = list("Vox")
+	species_restricted = list(SPECIES_VOX)
 	filtered_gases = list("oxygen", "sleeping_agent")
 
 /obj/item/clothing/mask/gas/syndicate
@@ -67,6 +73,14 @@
 	desc = "A close-fitting tactical mask that can be connected to an air supply."
 	icon_state = "swat"
 	siemens_coefficient = 0.7
+
+/obj/item/clothing/mask/gas/explorer
+	name = "explorer gas mask"
+	desc = "A military-grade gas mask that can be connected to an air supply."
+	icon_state = "explorer"
+	item_state_slots = list(slot_r_hand_str = "gas", slot_l_hand_str = "gas")
+	armor = list(melee = 10, bullet = 5, laser = 5,energy = 5, bomb = 0, bio = 50, rad = 0)
+	siemens_coefficient = 0.9
 
 /obj/item/clothing/mask/gas/clown_hat
 	name = "clown wig and mask"

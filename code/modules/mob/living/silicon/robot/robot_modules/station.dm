@@ -23,7 +23,7 @@ var/global/list/robot_modules = list(
 	var/hide_on_manifest = 0
 	var/channels = list()
 	var/networks = list()
-	var/languages = list(LANGUAGE_SOL_COMMON = 1, LANGUAGE_TRADEBAND = 1, LANGUAGE_UNATHI = 0, LANGUAGE_SIIK = 0, LANGUAGE_SKRELLIAN = 0, LANGUAGE_GUTTER = 0, LANGUAGE_SCHECHI = 0, "Sagaru" = 0, "Birdsong" = 0, "Canilunzt" = 0, LANGUAGE_SIGN = 0)
+	var/languages = list(LANGUAGE_SOL_COMMON = 1, LANGUAGE_TRADEBAND = 1, LANGUAGE_UNATHI = 0, LANGUAGE_SIIK = 0, LANGUAGE_AKHANI = 0, LANGUAGE_SKRELLIAN = 0, LANGUAGE_GUTTER = 0, LANGUAGE_SCHECHI = 0, LANGUAGE_SIGN = 0, LANGUAGE_TERMINUS = 1)
 	var/sprites = list()
 	var/can_be_pushed = 1
 	var/no_slip = 0
@@ -31,6 +31,7 @@ var/global/list/robot_modules = list(
 	var/list/datum/matter_synth/synths = list()
 	var/obj/item/emag = null
 	var/obj/item/borg/upgrade/jetpack = null
+	var/obj/item/borg/upgrade/advhealth = null
 	var/list/subsystems = list()
 	var/list/obj/item/borg/upgrade/supported_upgrades = list()
 
@@ -49,6 +50,8 @@ var/global/list/robot_modules = list(
 
 	if(R.radio)
 		R.radio.recalculateChannels()
+
+	vr_add_sprites() //Vorestation Edit: For vorestation only sprites
 
 	R.set_module_sprites(sprites)
 	R.choose_icon(R.module_sprites.len + 1, R.module_sprites)
@@ -155,6 +158,7 @@ var/global/list/robot_modules = list(
 	src.modules += new /obj/item/device/flash(src)
 	src.modules += new /obj/item/weapon/crowbar/cyborg(src)
 	src.modules += new /obj/item/weapon/extinguisher(src)
+	src.modules += new /obj/item/device/gps/robot(src)
 	vr_new() // Vorestation Edit: For modules in robot_modules_vr.dm
 
 /obj/item/weapon/robot_module/robot/standard
@@ -210,7 +214,6 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/robot/medical/surgeon/New()
 	..()
-	src.modules += new /obj/item/borg/sight/hud/med(src)
 	src.modules += new /obj/item/device/healthanalyzer(src)
 	src.modules += new /obj/item/weapon/reagent_containers/borghypo/surgeon(src)
 	src.modules += new /obj/item/weapon/surgical/scalpel/cyborg(src)
@@ -246,10 +249,19 @@ var/global/list/robot_modules = list(
 	src.modules += N
 	src.modules += B
 
-/obj/item/weapon/robot_module/medical/robot/surgeon/respawn_consumable(var/mob/living/silicon/robot/R, var/amount)
+/obj/item/weapon/robot_module/robot/medical/surgeon/respawn_consumable(var/mob/living/silicon/robot/R, var/amount)
+
+	var/obj/item/weapon/reagent_containers/syringe/S = locate() in src.modules
+	if(S.mode == 2)
+		S.reagents.clear_reagents()
+		S.mode = initial(S.mode)
+		S.desc = initial(S.desc)
+		S.update_icon()
+
 	if(src.emag)
 		var/obj/item/weapon/reagent_containers/spray/PS = src.emag
 		PS.reagents.add_reagent("pacid", 2 * amount)
+
 	..()
 
 /obj/item/weapon/robot_module/robot/medical/crisis
@@ -274,7 +286,6 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/robot/medical/crisis/New()
 	..()
-	src.modules += new /obj/item/borg/sight/hud/med(src)
 	src.modules += new /obj/item/device/healthanalyzer(src)
 	src.modules += new /obj/item/device/reagent_scanner/adv(src)
 	src.modules += new /obj/item/roller_holder(src)
@@ -428,6 +439,8 @@ var/global/list/robot_modules = list(
 	synths += metal
 	synths += glass
 	synths += plasteel
+	synths += wood
+	synths += plastic
 	synths += wire
 
 	var/obj/item/weapon/matter_decompiler/MD = new /obj/item/weapon/matter_decompiler(src)
@@ -503,10 +516,10 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/robot/security/general/New()
 	..()
-	src.modules += new /obj/item/borg/sight/hud/sec(src)
 	src.modules += new /obj/item/weapon/handcuffs/cyborg(src)
 	src.modules += new /obj/item/weapon/melee/baton/robot(src)
 	src.modules += new /obj/item/weapon/gun/energy/taser/mounted/cyborg(src)
+	// src.modules += new /obj/item/weapon/gun/energy/taser/xeno/sec/robot(src) // VOREStation Edit - We don't need these
 	src.modules += new /obj/item/taperoll/police(src)
 	src.modules += new /obj/item/weapon/reagent_containers/spray/pepper(src)
 	src.emag = new /obj/item/weapon/gun/energy/laser/mounted(src)
@@ -525,9 +538,6 @@ var/global/list/robot_modules = list(
 		T.update_icon()
 	else
 		T.charge_tick = 0
-	var/obj/item/weapon/melee/baton/robot/B = locate() in src.modules
-	if(B && B.bcell)
-		B.bcell.give(amount)
 
 /obj/item/weapon/robot_module/robot/janitor
 	name = "janitorial robot module"
@@ -571,12 +581,15 @@ var/global/list/robot_modules = list(
 					LANGUAGE_SOL_COMMON	= 1,
 					LANGUAGE_UNATHI		= 1,
 					LANGUAGE_SIIK		= 1,
+					LANGUAGE_AKHANI		= 1,
 					LANGUAGE_SKRELLIAN	= 1,
+					LANGUAGE_SKRELLIANFAR = 0,
 					LANGUAGE_ROOTLOCAL	= 0,
 					LANGUAGE_TRADEBAND	= 1,
 					LANGUAGE_GUTTER		= 1,
 					LANGUAGE_SCHECHI	= 1,
 					LANGUAGE_EAL		= 1,
+					LANGUAGE_TERMINUS	= 1,
 					LANGUAGE_SIGN		= 0
 					)
 
@@ -598,7 +611,8 @@ var/global/list/robot_modules = list(
 					"Bro" = "Brobot",
 					"Rich" = "maximillion",
 					"Drone - Service" = "drone-service",
-					"Drone - Hydro" = "drone-hydro"
+					"Drone - Hydro" = "drone-hydro",
+					"Bovtender" = "bovtender-base"
 				  	)
 
 /obj/item/weapon/robot_module/robot/clerical/butler/New()
@@ -606,7 +620,7 @@ var/global/list/robot_modules = list(
 	src.modules += new /obj/item/weapon/gripper/service(src)
 	src.modules += new /obj/item/weapon/reagent_containers/glass/bucket(src)
 	src.modules += new /obj/item/weapon/material/minihoe(src)
-	src.modules += new /obj/item/weapon/material/hatchet(src)
+	src.modules += new /obj/item/weapon/material/knife/machete/hatchet(src)
 	src.modules += new /obj/item/device/analyzer/plant_analyzer(src)
 	src.modules += new /obj/item/weapon/storage/bag/plants(src)
 	src.modules += new /obj/item/weapon/robot_harvester(src)
@@ -688,7 +702,8 @@ var/global/list/robot_modules = list(
 					"Basic" = "Miner_old",
 					"Advanced Droid" = "droid-miner",
 					"Treadhead" = "Miner",
-					"Drone" = "drone-miner"
+					"Drone" = "drone-miner",
+					"Mole" = "moleminer"
 				)
 
 /obj/item/weapon/robot_module/robot/miner/New()
@@ -756,6 +771,18 @@ var/global/list/robot_modules = list(
 	var/obj/item/stack/cable_coil/cyborg/C = new /obj/item/stack/cable_coil/cyborg(src)	//Cable code, taken from engiborg,
 	C.synths = list(wire)
 	src.modules += C
+
+/obj/item/weapon/robot_module/robot/research/respawn_consumable(var/mob/living/silicon/robot/R, var/amount)
+
+	var/obj/item/weapon/reagent_containers/syringe/S = locate() in src.modules
+	if(S.mode == 2)
+		S.reagents.clear_reagents()
+		S.mode = initial(S.mode)
+		S.desc = initial(S.desc)
+		S.update_icon()
+
+	..()
+
 
 /obj/item/weapon/robot_module/robot/security/combat
 	name = "combat robot module"
@@ -876,3 +903,16 @@ var/global/list/robot_modules = list(
 	LR.Charge(R, amount)
 	..()
 	return
+
+/obj/item/weapon/robot_module/drone/mining
+	name = "miner drone module"
+	channels = list("Supply" = 1)
+	networks = list(NETWORK_MINE)
+
+/obj/item/weapon/robot_module/drone/mining/New()
+	..()
+	src.modules += new /obj/item/borg/sight/material(src)
+	src.modules += new /obj/item/weapon/pickaxe/borgdrill(src)
+	src.modules += new /obj/item/weapon/storage/bag/ore(src)
+	src.modules += new /obj/item/weapon/storage/bag/sheetsnatcher/borg(src)
+	src.emag = new /obj/item/weapon/pickaxe/diamonddrill(src)

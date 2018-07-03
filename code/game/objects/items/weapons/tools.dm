@@ -45,7 +45,7 @@
 	icon_state = "wrench"
 	usesound = 'sound/effects/empulse.ogg'
 	toolspeed = 0.1
-	origin_tech = list(TECH_MATERIAL = 5, TECH_ENGINEER = 5)
+	origin_tech = list(TECH_MATERIAL = 5, TECH_ENGINEERING = 5)
 
 /obj/item/weapon/wrench/power
 	name = "hand drill"
@@ -60,13 +60,27 @@
 	throwforce = 8
 	attack_verb = list("drilled", "screwed", "jabbed")
 	toolspeed = 0.25
+	var/obj/item/weapon/screwdriver/power/counterpart = null
+
+/obj/item/weapon/wrench/power/New(newloc, no_counterpart = TRUE)
+	..(newloc)
+	if(!counterpart && no_counterpart)
+		counterpart = new(src, FALSE)
+		counterpart.counterpart = src
+
+/obj/item/weapon/wrench/power/Destroy()
+	if(counterpart)
+		counterpart.counterpart = null // So it can qdel cleanly.
+		qdel_null(counterpart)
+	return ..()
 
 /obj/item/weapon/wrench/power/attack_self(mob/user)
 	playsound(get_turf(user),'sound/items/change_drill.ogg',50,1)
-	var/obj/item/weapon/screwdriver/power/s_drill = new /obj/item/weapon/screwdriver/power
+	user.drop_item(src)
+	counterpart.forceMove(get_turf(src))
+	src.forceMove(counterpart)
+	user.put_in_active_hand(counterpart)
 	to_chat(user, "<span class='notice'>You attach the screw driver bit to [src].</span>")
-	qdel(src)
-	user.put_in_active_hand(s_drill)
 
 /*
  * Screwdriver
@@ -92,8 +106,9 @@
 	var/random_color = TRUE
 
 	suicide_act(mob/user)
-		viewers(user) << pick("<span class='danger'>\The [user] is stabbing the [src.name] into \his temple! It looks like \he's trying to commit suicide.</span>", \
-		                       "<span class='danger'>\The [user] is stabbing the [src.name] into \his heart! It looks like \he's trying to commit suicide.</span>")
+		var/datum/gender/TU = gender_datums[user.get_visible_gender()]
+		viewers(user) << pick("<span class='danger'>\The [user] is stabbing the [src.name] into [TU.his] temple! It looks like [TU.hes] trying to commit suicide.</span>", \
+		                       "<span class='danger'>\The [user] is stabbing the [src.name] into [TU.his] heart! It looks like [TU.hes] trying to commit suicide.</span>")
 		return(BRUTELOSS)
 
 /obj/item/weapon/screwdriver/New()
@@ -157,7 +172,7 @@
 	item_state = "drill"
 	matter = list(DEFAULT_WALL_MATERIAL = 150, MAT_SILVER = 50)
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
-
+	slot_flags = SLOT_BELT
 	force = 8
 	w_class = ITEMSIZE_SMALL
 	throwforce = 8
@@ -168,13 +183,27 @@
 	usesound = 'sound/items/drill_use.ogg'
 	toolspeed = 0.25
 	random_color = FALSE
+	var/obj/item/weapon/wrench/power/counterpart = null
+
+/obj/item/weapon/screwdriver/power/New(newloc, no_counterpart = TRUE)
+	..(newloc)
+	if(!counterpart && no_counterpart)
+		counterpart = new(src, FALSE)
+		counterpart.counterpart = src
+
+/obj/item/weapon/screwdriver/power/Destroy()
+	if(counterpart)
+		counterpart.counterpart = null // So it can qdel cleanly.
+		qdel_null(counterpart)
+	return ..()
 
 /obj/item/weapon/screwdriver/power/attack_self(mob/user)
 	playsound(get_turf(user),'sound/items/change_drill.ogg',50,1)
-	var/obj/item/weapon/wrench/power/w_drill = new /obj/item/weapon/wrench/power
+	user.drop_item(src)
+	counterpart.forceMove(get_turf(src))
+	src.forceMove(counterpart)
+	user.put_in_active_hand(counterpart)
 	to_chat(user, "<span class='notice'>You attach the bolt driver bit to [src].</span>")
-	qdel(src)
-	user.put_in_active_hand(w_drill)
 
 /*
  * Wirecutters
@@ -207,7 +236,7 @@
 	..()
 
 /obj/item/weapon/wirecutters/attack(mob/living/carbon/C as mob, mob/user as mob)
-	if(user.a_intent == I_HELP && (C.handcuffed) && (istype(C.handcuffed, /obj/item/weapon/handcuffs/cable)))
+	if(istype(C) && user.a_intent == I_HELP && (C.handcuffed) && (istype(C.handcuffed, /obj/item/weapon/handcuffs/cable)))
 		usr.visible_message("\The [usr] cuts \the [C]'s restraints with \the [src]!",\
 		"You cut \the [C]'s restraints with \the [src]!",\
 		"You hear cable being cut.")
@@ -245,13 +274,27 @@
 	force = 15
 	toolspeed = 0.25
 	random_color = FALSE
+	var/obj/item/weapon/crowbar/power/counterpart = null
+
+/obj/item/weapon/wirecutters/power/New(newloc, no_counterpart = TRUE)
+	..(newloc)
+	if(!counterpart && no_counterpart)
+		counterpart = new(src, FALSE)
+		counterpart.counterpart = src
+
+/obj/item/weapon/wirecutters/power/Destroy()
+	if(counterpart)
+		counterpart.counterpart = null // So it can qdel cleanly.
+		qdel_null(counterpart)
+	return ..()
 
 /obj/item/weapon/wirecutters/power/attack_self(mob/user)
 	playsound(get_turf(user), 'sound/items/change_jaws.ogg', 50, 1)
-	var/obj/item/weapon/crowbar/power/pryjaws = new /obj/item/weapon/crowbar/power
+	user.drop_item(src)
+	counterpart.forceMove(get_turf(src))
+	src.forceMove(counterpart)
+	user.put_in_active_hand(counterpart)
 	to_chat(user, "<span class='notice'>You attach the pry jaws to [src].</span>")
-	qdel(src)
-	user.put_in_active_hand(pryjaws)
 
 /*
  * Welding Tool
@@ -585,6 +628,9 @@
 					user.disabilities &= ~NEARSIGHTED
 	return
 
+/obj/item/weapon/weldingtool/is_hot()
+	return isOn()
+
 /obj/item/weapon/weldingtool/largetank
 	name = "industrial welding tool"
 	desc = "A slightly larger welder with a larger tank."
@@ -637,7 +683,7 @@
 
 /obj/item/weapon/weldingtool/experimental
 	name = "experimental welding tool"
-	desc = "An experimental welder capable of self-fuel generation. It can output a flame hotter than regular welders."
+	desc = "An experimental welder capable of synthesizing its own fuel from waste compounds. It can output a flame hotter than regular welders."
 	icon_state = "exwelder"
 	max_fuel = 40
 	w_class = ITEMSIZE_NORMAL
@@ -728,6 +774,9 @@
 	acti_sound = 'sound/effects/sparks4.ogg'
 	deac_sound = 'sound/effects/sparks4.ogg'
 
+/obj/item/weapon/weldingtool/electric/unloaded/New()
+	cell_type = null
+
 /obj/item/weapon/weldingtool/electric/New()
 	..()
 	if(cell_type == null)
@@ -738,8 +787,8 @@
 		power_supply = new /obj/item/weapon/cell/device(src)
 	update_icon()
 
-/obj/item/weapon/weldingtool/electric/unloaded/New()
-	cell_type = null
+/obj/item/weapon/weldingtool/electric/get_cell()
+	return power_supply
 
 /obj/item/weapon/weldingtool/electric/examine(mob/user)
 	if(get_dist(src, user) > 1)
@@ -908,13 +957,28 @@
 	usesound = 'sound/items/jaws_pry.ogg'
 	force = 15
 	toolspeed = 0.25
+	var/obj/item/weapon/wirecutters/power/counterpart = null
+
+/obj/item/weapon/crowbar/power/New(newloc, no_counterpart = TRUE)
+	..(newloc)
+	if(!counterpart && no_counterpart)
+		counterpart = new(src, FALSE)
+		counterpart.counterpart = src
+
+/obj/item/weapon/crowbar/power/Destroy()
+	if(counterpart)
+		counterpart.counterpart = null // So it can qdel cleanly.
+		qdel_null(counterpart)
+	return ..()
 
 /obj/item/weapon/crowbar/power/attack_self(mob/user)
 	playsound(get_turf(user), 'sound/items/change_jaws.ogg', 50, 1)
-	var/obj/item/weapon/wirecutters/power/cutjaws = new /obj/item/weapon/wirecutters/power
+	user.drop_item(src)
+	counterpart.forceMove(get_turf(src))
+	src.forceMove(counterpart)
+	user.put_in_active_hand(counterpart)
 	to_chat(user, "<span class='notice'>You attach the cutting jaws to [src].</span>")
-	qdel(src)
-	user.put_in_active_hand(cutjaws)
+
 
 /*/obj/item/weapon/combitool
 	name = "combi-tool"
@@ -927,9 +991,9 @@
 		/obj/item/weapon/screwdriver,
 		/obj/item/weapon/wrench,
 		/obj/item/weapon/wirecutters,
-		/obj/item/weapon/material/kitchen/utensil/knife,
+		/obj/item/weapon/material/knife,
 		/obj/item/weapon/material/kitchen/utensil/fork,
-		/obj/item/weapon/material/hatchet
+		/obj/item/weapon/material/knife/machete/hatchet
 		)
 	var/list/tools = list()
 	var/current_tool = 1

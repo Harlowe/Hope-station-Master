@@ -51,14 +51,14 @@
 			attack_self()
 			return
 		if(SOUTHWEST)
-			if(iscarbon(usr))
+			if(isliving(usr))
 				var/mob/living/carbon/C = usr
 				C.toggle_throw_mode()
 			else
 				usr << "<font color='red'>This mob type cannot throw items.</font>"
 			return
 		if(NORTHWEST)
-			if(iscarbon(usr))
+			if(isliving(usr))
 				var/mob/living/carbon/C = usr
 				if(!C.get_active_hand())
 					usr << "<font color='red'>You have nothing to drop in your hand.</font>"
@@ -79,8 +79,9 @@
 
 /client/verb/swap_hand()
 	set hidden = 1
-	if(istype(mob, /mob/living/carbon))
-		mob:swap_hand()
+	if(istype(mob, /mob/living))
+		var/mob/living/L = mob
+		L.swap_hand()
 	if(istype(mob,/mob/living/silicon/robot))
 		var/mob/living/silicon/robot/R = mob
 		R.cycle_modules()
@@ -167,6 +168,12 @@
 		src.m_flag = 1
 		if ((A != src.loc && A && A.z == src.z))
 			src.last_move = get_dir(A, src.loc)
+		if(.)
+			Moved(A, direct)
+	return
+
+// Called on a successful Move().
+/atom/movable/proc/Moved(atom/oldloc)
 	return
 
 /client/proc/Move_object(direct)
@@ -281,7 +288,7 @@
 			tickcomp = ((1/(world.tick_lag))*1.3) - 1.3
 			move_delay = move_delay + tickcomp
 
-		if(istype(mob.buckled, /obj/vehicle))
+		if(istype(mob.buckled))// VOREStation Removal - , /obj/vehicle))
 			//manually set move_delay for vehicles so we don't inherit any mob movement penalties
 			//specific vehicle move delays are set in code\modules\vehicles\vehicle.dm
 			move_delay = world.time + tickcomp
@@ -535,23 +542,23 @@
 
 /mob/proc/update_gravity()
 	return
-
+/*
 // The real Move() proc is above, but touching that massive block just to put this in isn't worth it.
 /mob/Move(var/newloc, var/direct)
 	. = ..(newloc, direct)
 	if(.)
 		post_move(newloc, direct)
-
+*/
 // Called when a mob successfully moves.
 // Would've been an /atom/movable proc but it caused issues.
-/mob/proc/post_move(var/newloc, var/direct)
+/mob/Moved(atom/oldloc)
 	for(var/obj/O in contents)
-		O.on_loc_moved(newloc, direct)
+		O.on_loc_moved(oldloc)
 
-// Received from post_move(), useful for items that need to know that their loc just moved.
-/obj/proc/on_loc_moved(var/newloc, var/direct)
+// Received from Moved(), useful for items that need to know that their loc just moved.
+/obj/proc/on_loc_moved(atom/oldloc)
 	return
 
-/obj/item/weapon/storage/on_loc_moved(var/newloc, var/direct)
+/obj/item/weapon/storage/on_loc_moved(atom/oldloc)
 	for(var/obj/O in contents)
-		O.on_loc_moved(newloc, direct)
+		O.on_loc_moved(oldloc)

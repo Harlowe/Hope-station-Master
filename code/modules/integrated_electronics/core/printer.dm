@@ -20,7 +20,7 @@
 	can_clone = TRUE
 
 /obj/item/device/integrated_circuit_printer/initialize()
-	..()
+	. = ..()
 	if(!recipe_list.len)
 		// Unfortunately this needed a lot of loops, but it should only be run once at init.
 
@@ -168,6 +168,8 @@
 		else if(ispath(build_type, /obj/item/integrated_circuit))
 			var/obj/item/integrated_circuit/IC = build_type
 			cost = initial(IC.w_class)
+		else
+			return
 
 		if(metal - cost < 0)
 			to_chat(usr, "<span class='warning'>You need [cost] metal to build that!.</span>")

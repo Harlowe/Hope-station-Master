@@ -20,7 +20,29 @@
 #define STARTING_SPECIES_POINTS 1
 #define MAX_SPECIES_TRAITS 5
 
+// Xenochimera thing mostly
+#define REVIVING_NOW		1
+#define REVIVING_DONE		2
+#define REVIVING_COOLDOWN	3
+
 // Resleeving Mind Record Status
 #define MR_NORMAL 0
 #define MR_UNSURE 1
 #define MR_DEAD 2
+
+//Shuttle madness!
+#define SHUTTLE_CRASHED 3 // Yup that can happen now
+
+#define BLUE_SHIELDED 2 // Shield from bluespace teleportation (telescience)
+
+//Assistant/Visitor/Whatever
+#define USELESS_JOB "Visitor"
+
+//Herm Gender
+#define HERM "herm"
+
+// Bluespace shelter deploy checks
+#define SHELTER_DEPLOY_ALLOWED "allowed"
+#define SHELTER_DEPLOY_BAD_TURFS "bad turfs"
+#define SHELTER_DEPLOY_BAD_AREA "bad area"
+#define SHELTER_DEPLOY_ANCHORED_OBJECTS "anchored objects"

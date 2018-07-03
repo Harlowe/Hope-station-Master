@@ -138,6 +138,14 @@
 		..()
 	return
 
+// Power machinery should also connect/disconnect from the network.
+/obj/machinery/power/default_unfasten_wrench(var/mob/user, var/obj/item/weapon/wrench/W, var/time = 20)
+	if((. = ..()))
+		if(anchored)
+			connect_to_network()
+		else
+			disconnect_from_network()
+
 // Used for power spikes by the engine, has specific effects on different machines.
 /obj/machinery/power/proc/overload(var/obj/machinery/power/source)
 	return
@@ -229,22 +237,6 @@
 				if(C.d1 == d || C.d2 == d || C.d1 == reverse || C.d2 == reverse )
 					. += C
 	return .
-
-/hook/startup/proc/buildPowernets()
-	return makepowernets()
-
-// rebuild all power networks from scratch - only called at world creation or by the admin verb
-/proc/makepowernets()
-	for(var/datum/powernet/PN in powernets)
-		qdel(PN)
-	powernets.Cut()
-
-	for(var/obj/structure/cable/PC in cable_list)
-		if(!PC.powernet)
-			var/datum/powernet/NewPN = new()
-			NewPN.add_cable(PC)
-			propagate_network(PC,PC.powernet)
-	return 1
 
 //remove the old powernet and replace it with a new one throughout the network.
 /proc/propagate_network(var/obj/O, var/datum/powernet/PN)
@@ -349,6 +341,11 @@
 		if(H.gloves)
 			var/obj/item/clothing/gloves/G = H.gloves
 			if(G.siemens_coefficient == 0)	return 0		//to avoid spamming with insulated glvoes on
+//Phorochemistry DM: Allows chemicalresistant shocking -Radiantflash
+		for(var/datum/reagent/phororeagent/R in M.reagents.reagent_list)
+			if(R.id == "fulguracin")
+				M << "<span class='notice'>Your hairs stand up, but you resist the shock for the most part</span>"
+				return 0 //no shock for you
 
 	//Checks again. If we are still here subject will be shocked, trigger standard 20 tick warning
 	//Since this one is longer it will override the original one.

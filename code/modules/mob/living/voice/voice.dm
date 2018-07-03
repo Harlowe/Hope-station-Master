@@ -8,11 +8,8 @@
 	emote_type = 2 //This lets them emote through containers.  The communicator has a image feed of the person calling them so...
 
 /mob/living/voice/New(loc)
-	add_language("Galactic Common")
-	for(var/datum/language/L in languages) //This is needed to get around some saycode problems.
-		if(L.name == "Galactic Common")
-			set_default_language(L)
-			break
+	add_language(LANGUAGE_GALCOM)
+	set_default_language(all_languages[LANGUAGE_GALCOM])
 
 	if(istype(loc, /obj/item/device/communicator))
 		comm = loc
@@ -113,7 +110,7 @@
 		var/speech_bubble_test = say_test(message)
 		//var/image/speech_bubble = image('icons/mob/talk_vr.dmi',comm,"h[speech_bubble_test]") //VOREStation Edit - Commented out in case of needed reenable.
 		var/speech_type = speech_bubble_appearance()
-		var/image/speech_bubble = image('icons/mob/talk.dmi',comm,"[speech_type][speech_bubble_test]")
+		var/image/speech_bubble = image('icons/mob/talk_vr.dmi',comm,"[speech_type][speech_bubble_test]") //VOREStation Edit - talk_vr.dmi instead of talk.dmi for right-side icons
 		spawn(30)
 			qdel(speech_bubble)
 

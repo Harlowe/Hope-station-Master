@@ -16,6 +16,62 @@
 
 // callproc moved to code/modules/admin/callproc
 
+/client/proc/simple_DPS()
+	set name = "Simple DPS"
+	set category = "Debug"
+	set desc = "Gives a really basic idea of how much hurt something in-hand does."
+
+	var/obj/item/I = null
+	var/mob/living/user = null
+	if(isliving(usr))
+		user = usr
+		I = user.get_active_hand()
+		if(!I || !istype(I))
+			to_chat(user, "<span class='warning'>You need to have something in your active hand, to use this verb.</span>")
+			return
+		var/weapon_attack_speed = user.get_attack_speed(I) / 10
+		var/weapon_damage = I.force
+		var/modified_damage_percent = 1
+
+		for(var/datum/modifier/M in user.modifiers)
+			if(!isnull(M.outgoing_melee_damage_percent))
+				weapon_damage *= M.outgoing_melee_damage_percent
+				modified_damage_percent *= M.outgoing_melee_damage_percent
+
+		if(istype(I, /obj/item/weapon/gun))
+			var/obj/item/weapon/gun/G = I
+			var/obj/item/projectile/P
+
+			if(istype(I, /obj/item/weapon/gun/energy))
+				var/obj/item/weapon/gun/energy/energy_gun = G
+				P = new energy_gun.projectile_type()
+
+			else if(istype(I, /obj/item/weapon/gun/projectile))
+				var/obj/item/weapon/gun/projectile/projectile_gun = G
+				var/obj/item/ammo_casing/ammo = projectile_gun.chambered
+				P = ammo.BB
+
+			else
+				to_chat(user, "<span class='warning'>DPS calculation by this verb is not supported for \the [G]'s type. Energy or Ballistic only, sorry.</span>")
+
+			weapon_damage = P.damage
+			weapon_attack_speed = G.fire_delay / 10
+			qdel(P)
+
+		var/DPS = weapon_damage / weapon_attack_speed
+		to_chat(user, "<span class='notice'>Damage: [weapon_damage][modified_damage_percent != 1 ? " (Modified by [modified_damage_percent*100]%)":""]</span>")
+		to_chat(user, "<span class='notice'>Attack Speed: [weapon_attack_speed]/s</span>")
+		to_chat(user, "<span class='notice'>\The [I] does <b>[DPS]</b> damage per second.</span>")
+		if(DPS > 0)
+			to_chat(user, "<span class='notice'>At your maximum health ([user.getMaxHealth()]), it would take approximately;</span>")
+			to_chat(user, "<span class='notice'>[(user.getMaxHealth() - config.health_threshold_softcrit) / DPS] seconds to softcrit you. ([config.health_threshold_softcrit] health)</span>")
+			to_chat(user, "<span class='notice'>[(user.getMaxHealth() - config.health_threshold_crit) / DPS] seconds to hardcrit you. ([config.health_threshold_crit] health)</span>")
+			to_chat(user, "<span class='notice'>[(user.getMaxHealth() - config.health_threshold_dead) / DPS] seconds to kill you. ([config.health_threshold_dead] health)</span>")
+
+	else
+		to_chat(user, "<span class='warning'>You need to be a living mob, with hands, and for an object to be in your active hand, to use this verb.</span>")
+		return
+
 /client/proc/Cell()
 	set category = "Debug"
 	set name = "Cell"
@@ -117,96 +173,6 @@
 	else
 		alert("Invalid mob")
 
-/*
-/client/proc/cmd_admin_monkeyize(var/mob/M in world)
-	set category = "Fun"
-	set name = "Make Monkey"
-
-	if(!ticker)
-		alert("Wait until the game starts")
-		return
-	if(istype(M, /mob/living/carbon/human))
-		var/mob/living/carbon/human/target = M
-		log_admin("[key_name(src)] is attempting to monkeyize [M.key].")
-		spawn(10)
-			target.monkeyize()
-	else
-		alert("Invalid mob")
-
-/client/proc/cmd_admin_changelinginize(var/mob/M in world)
-	set category = "Fun"
-	set name = "Make Changeling"
-
-	if(!ticker)
-		alert("Wait until the game starts")
-		return
-	if(istype(M, /mob/living/carbon/human))
-		log_admin("[key_name(src)] has made [M.key] a changeling.")
-		spawn(10)
-			M.absorbed_dna[M.real_name] = M.dna.Clone()
-			M.make_changeling()
-			if(M.mind)
-				M.mind.special_role = "Changeling"
-	else
-		alert("Invalid mob")
-*/
-/*
-/client/proc/cmd_admin_abominize(var/mob/M in world)
-	set category = null
-	set name = "Make Abomination"
-
-	usr << "Ruby Mode disabled. Command aborted."
-	return
-	if(!ticker)
-		alert("Wait until the game starts.")
-		return
-	if(istype(M, /mob/living/carbon/human))
-		log_admin("[key_name(src)] has made [M.key] an abomination.")
-
-	//	spawn(10)
-	//		M.make_abomination()
-
-*/
-/*
-/client/proc/make_cultist(var/mob/M in world) // -- TLE, modified by Urist
-	set category = "Fun"
-	set name = "Make Cultist"
-	set desc = "Makes target a cultist"
-	if(!cultwords["travel"])
-		runerandom()
-	if(M)
-		if(M.mind in ticker.mode.cult)
-			return
-		else
-			if(alert("Spawn that person a tome?",,"Yes","No")=="Yes")
-				M << "<font color='red'>You catch a glimpse of the Realm of Nar-Sie, The Geometer of Blood. You now see how flimsy the world is, you see that it should be open to the knowledge of Nar-Sie. A tome, a message from your new master, appears on the ground.</font>"
-				new /obj/item/weapon/book/tome(M.loc)
-			else
-				M << "<font color='red'>You catch a glimpse of the Realm of Nar-Sie, The Geometer of Blood. You now see how flimsy the world is, you see that it should be open to the knowledge of Nar-Sie.</font>"
-			var/glimpse=pick("1","2","3","4","5","6","7","8")
-			switch(glimpse)
-				if("1")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["travel"]] is travel...</font>"
-				if("2")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["blood"]] is blood...</font>"
-				if("3")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["join"]] is join...</font>"
-				if("4")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["hell"]] is Hell...</font>"
-				if("5")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["destroy"]] is destroy...</font>"
-				if("6")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["technology"]] is technology...</font>"
-				if("7")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["self"]] is self...</font>"
-				if("8")
-					M << "<font color='red'>You remembered one thing from the glimpse... [cultwords["see"]] is see...</font>"
-
-			if(M.mind)
-				M.mind.special_role = "Cultist"
-				ticker.mode.cult += M.mind
-			src << "Made [M] a cultist."
-*/
 
 //TODO: merge the vievars version into this or something maybe mayhaps
 /client/proc/cmd_debug_del_all()
@@ -227,9 +193,9 @@
 /client/proc/cmd_debug_make_powernets()
 	set category = "Debug"
 	set name = "Make Powernets"
-	makepowernets()
-	log_admin("[key_name(src)] has remade the powernet. makepowernets() called.")
-	message_admins("[key_name_admin(src)] has remade the powernets. makepowernets() called.", 0)
+	SSmachines.makepowernets()
+	log_admin("[key_name(src)] has remade the powernet. SSmachines.makepowernets() called.")
+	message_admins("[key_name_admin(src)] has remade the powernets. SSmachines.makepowernets() called.", 0)
 	feedback_add_details("admin_verb","MPWN") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_debug_tog_aliens()
@@ -240,6 +206,66 @@
 	log_admin("[key_name(src)] has turned aliens [config.aliens_allowed ? "on" : "off"].")
 	message_admins("[key_name_admin(src)] has turned aliens [config.aliens_allowed ? "on" : "off"].", 0)
 	feedback_add_details("admin_verb","TAL") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/client/proc/cmd_display_del_log()
+	set category = "Debug"
+	set name = "Display del() Log"
+	set desc = "Display del's log of everything that's passed through it."
+
+	if(!check_rights(R_DEBUG))	return
+	var/list/dellog = list("<B>List of things that have gone through qdel this round</B><BR><BR><ol>")
+	sortTim(SSgarbage.items, cmp=/proc/cmp_qdel_item_time, associative = TRUE)
+	for(var/path in SSgarbage.items)
+		var/datum/qdel_item/I = SSgarbage.items[path]
+		dellog += "<li><u>[path]</u><ul>"
+		if (I.failures)
+			dellog += "<li>Failures: [I.failures]</li>"
+		dellog += "<li>qdel() Count: [I.qdels]</li>"
+		dellog += "<li>Destroy() Cost: [I.destroy_time]ms</li>"
+		if (I.hard_deletes)
+			dellog += "<li>Total Hard Deletes [I.hard_deletes]</li>"
+			dellog += "<li>Time Spent Hard Deleting: [I.hard_delete_time]ms</li>"
+		if (I.slept_destroy)
+			dellog += "<li>Sleeps: [I.slept_destroy]</li>"
+		if (I.no_respect_force)
+			dellog += "<li>Ignored force: [I.no_respect_force]</li>"
+		if (I.no_hint)
+			dellog += "<li>No hint: [I.no_hint]</li>"
+		dellog += "</ul></li>"
+
+	dellog += "</ol>"
+
+	usr << browse(dellog.Join(), "window=dellog")
+
+/client/proc/cmd_display_init_log()
+	set category = "Debug"
+	set name = "Display Initialize() Log"
+	set desc = "Displays a list of things that didn't handle Initialize() properly"
+
+	if(!check_rights(R_DEBUG))	return
+	src << browse(replacetext(SSatoms.InitLog(), "\n", "<br>"), "window=initlog")
+
+/client/proc/cmd_display_overlay_log()
+	set category = "Debug"
+	set name = "Display overlay Log"
+	set desc = "Display SSoverlays log of everything that's passed through it."
+
+	if(!check_rights(R_DEBUG))	return
+	render_stats(SSoverlays.stats, src)
+
+// Render stats list for round-end statistics.
+/proc/render_stats(list/stats, user, sort = /proc/cmp_generic_stat_item_time)
+	sortTim(stats, sort, TRUE)
+
+	var/list/lines = list()
+	for (var/entry in stats)
+		var/list/data = stats[entry]
+		lines += "[entry] => [num2text(data[STAT_ENTRY_TIME], 10)]ms ([data[STAT_ENTRY_COUNT]]) (avg:[num2text(data[STAT_ENTRY_TIME]/(data[STAT_ENTRY_COUNT] || 1), 99)])"
+
+	if (user)
+		user << browse("<ol><li>[lines.Join("</li><li>")]</li></ol>", "window=[url_encode("stats:\ref[stats]")]")
+	else
+		. = lines.Join("\n")
 
 /client/proc/cmd_admin_grantfullaccess(var/mob/M in mob_list)
 	set category = "Admin"
@@ -292,10 +318,15 @@
 		qdel(adminmob)
 	feedback_add_details("admin_verb","ADC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
+/client/proc/take_picture(var/atom/A in world)
+	set name = "Save PNG"
+	set category = "Debug"
+	set desc = "Opens a dialog to save a PNG of any object in the game."
 
+	if(!check_rights(R_DEBUG))
+		return
 
-
-
+	downloadImage(A)
 
 /client/proc/cmd_admin_areatest()
 	set category = "Mapping"
@@ -310,41 +341,41 @@
 	var/list/areas_with_intercom = list()
 	var/list/areas_with_camera = list()
 
-	for(var/area/A in world)
+	for(var/area/A in all_areas)
 		if(!(A.type in areas_all))
 			areas_all.Add(A.type)
 
-	for(var/obj/machinery/power/apc/APC in world)
+	for(var/obj/machinery/power/apc/APC in machines)
 		var/area/A = get_area(APC)
 		if(A && !(A.type in areas_with_APC))
 			areas_with_APC.Add(A.type)
 
-	for(var/obj/machinery/alarm/alarm in world)
+	for(var/obj/machinery/alarm/alarm in machines)
 		var/area/A = get_area(alarm)
 		if(A && !(A.type in areas_with_air_alarm))
 			areas_with_air_alarm.Add(A.type)
 
-	for(var/obj/machinery/requests_console/RC in world)
+	for(var/obj/machinery/requests_console/RC in machines)
 		var/area/A = get_area(RC)
 		if(A && !(A.type in areas_with_RC))
 			areas_with_RC.Add(A.type)
 
-	for(var/obj/machinery/light/L in world)
+	for(var/obj/machinery/light/L in machines)
 		var/area/A = get_area(L)
 		if(A && !(A.type in areas_with_light))
 			areas_with_light.Add(A.type)
 
-	for(var/obj/machinery/light_switch/LS in world)
+	for(var/obj/machinery/light_switch/LS in machines)
 		var/area/A = get_area(LS)
 		if(A && !(A.type in areas_with_LS))
 			areas_with_LS.Add(A.type)
 
-	for(var/obj/item/device/radio/intercom/I in world)
+	for(var/obj/item/device/radio/intercom/I in machines)
 		var/area/A = get_area(I)
 		if(A && !(A.type in areas_with_intercom))
 			areas_with_intercom.Add(A.type)
 
-	for(var/obj/machinery/camera/C in world)
+	for(var/obj/machinery/camera/C in machines)
 		var/area/A = get_area(C)
 		if(A && !(A.type in areas_with_camera))
 			areas_with_camera.Add(A.type)
@@ -425,33 +456,31 @@
 	if(alert("Are you sure? This will start up the engine. Should only be used during debug!",,"Yes","No") != "Yes")
 		return
 
-	for(var/obj/machinery/power/emitter/E in world)
-		if(E.anchored)
-			E.active = 1
-
-	for(var/obj/machinery/field_generator/F in world)
-		if(F.anchored)
+	for(var/obj/machinery/power/emitter/E in machines)
+		if(istype(get_area(E), /area/space))
+			E.anchored = TRUE
+			E.state = 2
+			E.connect_to_network()
+			E.active = TRUE
+	for(var/obj/machinery/field_generator/F in machines)
+		if(istype(get_area(F), /area/space))
 			F.Varedit_start = 1
-	spawn(30)
-		for(var/obj/machinery/the_singularitygen/G in world)
-			if(G.anchored)
-				var/obj/singularity/S = new /obj/singularity(get_turf(G), 50)
-				spawn(0)
-					qdel(G)
-				S.energy = 1750
-				S.current_size = 7
-				S.icon = 'icons/effects/224x224.dmi'
-				S.icon_state = "singularity_s7"
-				S.pixel_x = -96
-				S.pixel_y = -96
-				S.grav_pull = 0
-				//S.consume_range = 3
-				S.dissipate = 0
-				//S.dissipate_delay = 10
-				//S.dissipate_track = 0
-				//S.dissipate_strength = 10
+	for(var/obj/machinery/power/grounding_rod/GR in machines)
+		GR.anchored = TRUE
+		GR.update_icon()
+	for(var/obj/machinery/power/tesla_coil/TC in machines)
+		TC.anchored = TRUE
+		TC.update_icon()
+	for(var/obj/structure/particle_accelerator/PA in machines)
+		PA.anchored = TRUE
+		PA.construction_state = 3
+		PA.update_icon()
+	for(var/obj/machinery/particle_accelerator/PA in machines)
+		PA.anchored = TRUE
+		PA.construction_state = 3
+		PA.update_icon()
 
-	for(var/obj/machinery/power/rad_collector/Rad in world)
+	for(var/obj/machinery/power/rad_collector/Rad in machines)
 		if(Rad.anchored)
 			if(!Rad.P)
 				var/obj/item/weapon/tank/phoron/Phoron = new/obj/item/weapon/tank/phoron(Rad)
@@ -462,10 +491,6 @@
 
 			if(!Rad.active)
 				Rad.toggle_power()
-
-	for(var/obj/machinery/power/smes/SMES in world)
-		if(SMES.anchored)
-			SMES.input_attempt = 1
 
 /client/proc/setup_supermatter_engine()
 	set category = "Debug"
@@ -482,7 +507,7 @@
 	var/found_the_pump = 0
 	var/obj/machinery/power/supermatter/SM
 
-	for(var/obj/machinery/M in world)
+	for(var/obj/machinery/M in machines)
 		if(!M)
 			continue
 		if(!M.loc)
@@ -612,7 +637,7 @@
 	if(!check_rights(R_DEBUG))
 		return
 
-	var/datum/planet/planet = input(usr, "Which planet do you want to modify the weather on?", "Change Weather") in planet_controller.planets
+	var/datum/planet/planet = input(usr, "Which planet do you want to modify the weather on?", "Change Weather") in SSplanets.planets
 	var/datum/weather/new_weather = input(usr, "What weather do you want to change to?", "Change Weather") as null|anything in planet.weather_holder.allowed_weather_types
 	if(new_weather)
 		planet.weather_holder.change_weather(new_weather)
@@ -628,7 +653,7 @@
 	if(!check_rights(R_DEBUG))
 		return
 
-	var/datum/planet/planet = input(usr, "Which planet do you want to modify time on?", "Change Time") in planet_controller.planets
+	var/datum/planet/planet = input(usr, "Which planet do you want to modify time on?", "Change Time") in SSplanets.planets
 
 	var/datum/time/current_time_datum = planet.current_time
 	var/new_hour = input(usr, "What hour do you want to change to?", "Change Time", text2num(current_time_datum.show_time("hh"))) as null|num

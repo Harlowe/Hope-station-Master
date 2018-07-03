@@ -6,7 +6,8 @@
 	use_power = 2
 	idle_power_usage = 5
 	active_power_usage = 10
-	layer = 5
+	plane = MOB_PLANE
+	layer = ABOVE_MOB_LAYER
 
 	var/list/network = list(NETWORK_DEFAULT)
 	var/c_tag = null
@@ -87,9 +88,8 @@
 
 /obj/machinery/camera/emp_act(severity)
 	if(!isEmpProof() && prob(100/severity))
-		if(!affected_by_emp_until || (world.time < affected_by_emp_until))
+		if(!affected_by_emp_until || (world.time > affected_by_emp_until))
 			affected_by_emp_until = max(affected_by_emp_until, world.time + (90 SECONDS / severity))
-		else
 			stat |= EMPED
 			set_light(0)
 			triggerCameraAlarm()
@@ -111,6 +111,11 @@
 
 	..() //and give it the regular chance of being deleted outright
 
+/obj/machinery/camera/blob_act()
+	if((stat & BROKEN) || invuln)
+		return
+	destroy()
+
 /obj/machinery/camera/hitby(AM as mob|obj)
 	..()
 	if (istype(AM, /obj))
@@ -130,11 +135,23 @@
 	if(user.species.can_shred(user))
 		set_status(0)
 		user.do_attack_animation(src)
-		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+		user.setClickCooldown(user.get_attack_speed())
 		visible_message("<span class='warning'>\The [user] slashes at [src]!</span>")
 		playsound(src.loc, 'sound/weapons/slash.ogg', 100, 1)
 		add_hiddenprint(user)
 		destroy()
+
+/obj/machinery/camera/attack_generic(mob/user as mob)
+	if(isanimal(user))
+		var/mob/living/simple_animal/S = user
+		set_status(0)
+		S.do_attack_animation(src)
+		S.setClickCooldown(user.get_attack_speed())
+		visible_message("<span class='warning'>\The [user] [pick(S.attacktext)] \the [src]!</span>")
+		playsound(src.loc, S.attack_sound, 100, 1)
+		add_hiddenprint(user)
+		destroy()
+	..()
 
 /obj/machinery/camera/attackby(obj/item/W as obj, mob/living/user as mob)
 	update_coverage()
@@ -210,7 +227,7 @@
 			src.bugged = 1
 
 	else if(W.damtype == BRUTE || W.damtype == BURN) //bashing cameras
-		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+		user.setClickCooldown(user.get_attack_speed(W))
 		if (W.force >= src.toughness)
 			user.do_attack_animation(src)
 			visible_message("<span class='warning'><b>[src] has been [W.attack_verb.len? pick(W.attack_verb) : "attacked"] with [W] by [user]!</b></span>")

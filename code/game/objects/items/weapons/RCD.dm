@@ -29,7 +29,14 @@
 	return 0
 
 /obj/item/weapon/rcd/proc/can_use(var/mob/user,var/turf/T)
-	return (user.Adjacent(T) && user.get_active_hand() == src && !user.stat && !user.restrained())
+	var/usable = 0
+	if(user.Adjacent(T) && user.get_active_hand() == src && !user.stat && !user.restrained())
+		usable = 1
+	if(!user.IsAdvancedToolUser() && istype(user, /mob/living/simple_animal))
+		var/mob/living/simple_animal/S = user
+		if(!S.IsHumanoidToolUser(src))
+			usable = 0
+	return usable
 
 /obj/item/weapon/rcd/examine()
 	..()
@@ -103,7 +110,7 @@
 		build_delay = 50
 		build_type = "airlock"
 		build_other = /obj/machinery/door/airlock
-	else if(!deconstruct && (istype(T,/turf/space) || istype(T,get_base_turf_by_area(T))))
+	else if(!deconstruct && isturf(T) && (istype(T,/turf/space) || istype(T,get_base_turf_by_area(T))))
 		build_cost =  1
 		build_type =  "floor"
 		build_turf =  /turf/simulated/floor/airless
@@ -122,10 +129,7 @@
 		build_delay = deconstruct ? 50 : 20
 		build_cost =  deconstruct ? 10 : 3
 		build_type =  deconstruct ? "floor" : "wall"
-		if(F.check_destroy_override(F))
-			build_turf =  deconstruct ? destroy_floor_override_path : /turf/simulated/wall
-		else
-			build_turf =  deconstruct ? /turf/space : /turf/simulated/wall
+		build_turf =  deconstruct ? get_base_turf_by_area(F) : /turf/simulated/wall
 
 	if(!build_type)
 		working = 0

@@ -54,8 +54,8 @@
 			expired = 1
 	return ..()
 
-/obj/item/weapon/card/id/guest/New()
-	..()
+/obj/item/weapon/card/id/guest/initialize()
+	. = ..() 
 	processing_objects.Add(src)
 	update_icon()
 
@@ -78,6 +78,8 @@
 /obj/machinery/computer/guestpass
 	name = "guest pass terminal"
 	icon_state = "guest"
+	plane = TURF_PLANE
+	layer = ABOVE_TURF_LAYER
 	icon_keyboard = null
 	icon_screen = "pass"
 	density = 0

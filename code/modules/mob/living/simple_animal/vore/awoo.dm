@@ -1,6 +1,7 @@
 /mob/living/simple_animal/retaliate/awoo
 	name = "wolfgirl"
 	desc = "AwooOOOOoooo!"
+	tt_desc = "Homo lupus"
 	icon = 'icons/mob/vore.dmi'
 	icon_state = "awoo"
 	icon_living = "awoo"
@@ -24,7 +25,7 @@
 	harm_intent_damage = 8
 	melee_damage_lower = 15
 	melee_damage_upper = 15
-	attacktext = "slashed"
+	attacktext = list("slashed")
 
 	speak_chance = 1
 	speak = list("AwoooOOOOoooo!",

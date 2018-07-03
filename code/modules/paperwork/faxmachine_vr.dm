@@ -46,6 +46,9 @@
 			query_string += "&sendername=[url_encode(sender.name)]"
 			query_string += "&sentname=[url_encode(sent.name)]"
 			world.Export("[config.chat_webhook_url]?[query_string]")
+	//YW EDIT
+	SERVER_TOOLS_RELAY_BROADCAST("FAX: [sanitize(faxname)] / [sanitize(sent.name)] - SENT BY: [sanitize(sender.name)] - FAXID: **[sanitize(faxid)]**")
+	//YW EDIT END
 
 //
 // Overrides/additions to stock defines go here, as well as hooks. Sort them by

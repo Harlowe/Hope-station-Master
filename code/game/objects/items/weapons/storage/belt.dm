@@ -8,7 +8,7 @@
 	max_w_class = ITEMSIZE_NORMAL
 	slot_flags = SLOT_BELT
 	attack_verb = list("whipped", "lashed", "disciplined")
-	sprite_sheets = list("Teshari" = 'icons/mob/species/seromi/belt.dmi')
+	sprite_sheets = list(SPECIES_TESHARI = 'icons/mob/species/seromi/belt.dmi')
 
 	var/show_above_suit = 0
 
@@ -21,6 +21,16 @@
 		return
 	show_above_suit = !show_above_suit
 	update_icon()
+
+//Some belts have sprites to show icons
+/obj/item/weapon/storage/belt/make_worn_icon(var/body_type,var/slot_name,var/inhands,var/default_icon,var/default_layer = 0)
+	var/image/standing = ..()
+	if(!inhands && contents.len)
+		for(var/obj/item/i in contents)
+			var/i_state = i.item_state
+			if(!i_state) i_state = i.icon_state
+			standing.add_overlay(image(icon = INV_BELT_DEF_ICON, icon_state = i_state))
+	return standing
 
 /obj/item/weapon/storage/update_icon()
 	if (ismob(src.loc))
@@ -52,30 +62,32 @@
 		/obj/item/device/radio/headset,
 		/obj/item/device/robotanalyzer,
 		/obj/item/weapon/material/minihoe,
-		/obj/item/weapon/material/hatchet,
+		/obj/item/weapon/material/knife/machete/hatchet,
 		/obj/item/device/analyzer/plant_analyzer,
 		/obj/item/weapon/extinguisher/mini,
 		/obj/item/weapon/tape_roll,
 		/obj/item/device/integrated_electronics/wirer,
+		/obj/item/device/integrated_electronics/debugger, //Vorestation edit adding debugger to toolbelt can hold list
 		)
 
-/obj/item/weapon/storage/belt/utility/full/New()
-	..()
-	new /obj/item/weapon/screwdriver(src)
-	new /obj/item/weapon/wrench(src)
-	new /obj/item/weapon/weldingtool(src)
-	new /obj/item/weapon/crowbar(src)
-	new /obj/item/weapon/wirecutters(src)
-	new /obj/item/stack/cable_coil(src,30,pick("red","yellow","orange"))
+/obj/item/weapon/storage/belt/utility/full
+	starts_with = list(
+		/obj/item/weapon/screwdriver,
+		/obj/item/weapon/wrench,
+		/obj/item/weapon/weldingtool,
+		/obj/item/weapon/crowbar,
+		/obj/item/weapon/wirecutters,
+		/obj/item/stack/cable_coil/random_belt
+	)
 
-/obj/item/weapon/storage/belt/utility/atmostech/New()
-	..()
-	new /obj/item/weapon/screwdriver(src)
-	new /obj/item/weapon/wrench(src)
-	new /obj/item/weapon/weldingtool(src)
-	new /obj/item/weapon/crowbar(src)
-	new /obj/item/weapon/wirecutters(src)
-	new /obj/item/device/t_scanner(src)
+/obj/item/weapon/storage/belt/utility/atmostech
+	starts_with = list(
+		/obj/item/weapon/screwdriver,
+		/obj/item/weapon/wrench,
+		/obj/item/weapon/weldingtool,
+		/obj/item/weapon/crowbar,
+		/obj/item/weapon/wirecutters,
+	)
 
 /obj/item/weapon/storage/belt/utility/chief
 	name = "chief engineer's toolbelt"
@@ -83,15 +95,16 @@
 	icon_state = "utilitybelt_ce"
 	item_state = "utility_ce"
 
-/obj/item/weapon/storage/belt/utility/chief/full/New()
-	..()
-	new /obj/item/weapon/screwdriver/power(src)
-	new /obj/item/weapon/crowbar/power(src)
-	new /obj/item/weapon/weldingtool/experimental(src)
-	new /obj/item/device/multitool(src)
-	new /obj/item/stack/cable_coil(src,30,pick("red","yellow","orange"))
-	new /obj/item/weapon/extinguisher/mini(src)
-	new /obj/item/device/analyzer(src)
+/obj/item/weapon/storage/belt/utility/chief/full
+	starts_with = list(
+		/obj/item/weapon/screwdriver/power,
+		/obj/item/weapon/crowbar/power,
+		/obj/item/weapon/weldingtool/experimental,
+		/obj/item/device/multitool,
+		/obj/item/stack/cable_coil/random_belt,
+		/obj/item/weapon/extinguisher/mini,
+		/obj/item/device/analyzer
+	)
 
 /obj/item/weapon/storage/belt/medical
 	name = "medical belt"
@@ -105,6 +118,7 @@
 		/obj/item/weapon/reagent_containers/glass/bottle,
 		/obj/item/weapon/reagent_containers/pill,
 		/obj/item/weapon/reagent_containers/syringe,
+		/obj/item/weapon/storage/quickdraw/syringe_case, //VOREStation Addition - Adds syringe cases,
 		/obj/item/weapon/flame/lighter/zippo,
 		/obj/item/weapon/storage/fancy/cigarettes,
 		/obj/item/weapon/storage/pill_bottle,
@@ -121,7 +135,8 @@
 		/obj/item/weapon/crowbar,
 		/obj/item/device/flashlight,
 		/obj/item/weapon/cell/device,
-		/obj/item/weapon/extinguisher/mini
+		/obj/item/weapon/extinguisher/mini,
+		/obj/item/weapon/storage/quickdraw/syringe_case
 		)
 
 /obj/item/weapon/storage/belt/medical/emt
@@ -160,6 +175,7 @@
 		/obj/item/weapon/melee,
 		/obj/item/clothing/accessory/badge,
 		/obj/item/weapon/gun/projectile/sec,
+		/obj/item/weapon/gun/projectile/p92x,
 		/obj/item/taperoll,
 		/obj/item/weapon/gun/projectile/colt/detective
 		)
@@ -215,14 +231,8 @@
 		/obj/item/device/soulstone
 		)
 
-/obj/item/weapon/storage/belt/soulstone/full/New()
-	..()
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
+/obj/item/weapon/storage/belt/soulstone/full
+	starts_with = list(/obj/item/device/soulstone = 6)
 
 /obj/item/weapon/storage/belt/utility/alien
 	name = "alien belt"
@@ -231,15 +241,16 @@
 	icon_state = "belt"
 	item_state = "security"
 
-/obj/item/weapon/storage/belt/utility/alien/full/New()
-	..()
-	new /obj/item/weapon/screwdriver/alien(src)
-	new /obj/item/weapon/wrench/alien(src)
-	new /obj/item/weapon/weldingtool/alien(src)
-	new /obj/item/weapon/crowbar/alien(src)
-	new /obj/item/weapon/wirecutters/alien(src)
-	new /obj/item/device/multitool/alien(src)
-	new /obj/item/stack/cable_coil/alien(src)
+/obj/item/weapon/storage/belt/utility/alien/full
+	starts_with = list(
+		/obj/item/weapon/screwdriver/alien,
+		/obj/item/weapon/wrench/alien,
+		/obj/item/weapon/weldingtool/alien,
+		/obj/item/weapon/crowbar/alien,
+		/obj/item/weapon/wirecutters/alien,
+		/obj/item/device/multitool/alien,
+		/obj/item/stack/cable_coil/alien
+	)
 
 /obj/item/weapon/storage/belt/medical/alien
 	name = "alien belt"
@@ -247,6 +258,7 @@
 	icon = 'icons/obj/abductor.dmi'
 	icon_state = "belt"
 	item_state = "security"
+	storage_slots = 8
 	can_hold = list(
 		/obj/item/device/healthanalyzer,
 		/obj/item/weapon/dnainjector,
@@ -275,15 +287,17 @@
 		/obj/item/weapon/surgical
 		)
 
-/obj/item/weapon/storage/belt/medical/alien/New()
-	..()
-	new /obj/item/weapon/surgical/scalpel/alien(src)
-	new /obj/item/weapon/surgical/hemostat/alien(src)
-	new /obj/item/weapon/surgical/retractor/alien(src)
-	new /obj/item/weapon/surgical/circular_saw/alien(src)
-	new /obj/item/weapon/surgical/FixOVein/alien(src)
-	new /obj/item/weapon/surgical/bone_clamp/alien(src)
-	new /obj/item/weapon/surgical/cautery/alien(src)
+/obj/item/weapon/storage/belt/medical/alien
+	starts_with = list(
+		/obj/item/weapon/surgical/scalpel/alien,
+		/obj/item/weapon/surgical/hemostat/alien,
+		/obj/item/weapon/surgical/retractor/alien,
+		/obj/item/weapon/surgical/circular_saw/alien,
+		/obj/item/weapon/surgical/FixOVein/alien,
+		/obj/item/weapon/surgical/bone_clamp/alien,
+		/obj/item/weapon/surgical/cautery/alien,
+		/obj/item/weapon/surgical/surgicaldrill/alien
+	)
 
 /obj/item/weapon/storage/belt/champion
 	name = "championship belt"
@@ -360,7 +374,9 @@
 		/obj/item/weapon/storage/excavation,
 		/obj/item/weapon/anobattery,
 		/obj/item/device/ano_scanner,
-		/obj/item/weapon/pickaxe/hand
+		/obj/item/weapon/pickaxe/hand,
+		/obj/item/device/xenoarch_multi_tool,
+		/obj/item/weapon/pickaxe/excavationdrill
 		)
 
 /obj/item/weapon/storage/belt/fannypack

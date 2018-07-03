@@ -4,14 +4,13 @@
 	name = "\improper SmartFridge"
 	icon = 'icons/obj/vending.dmi'
 	icon_state = "smartfridge"
-	layer = 2.9
 	density = 1
 	anchored = 1
 	use_power = 1
 	idle_power_usage = 5
 	active_power_usage = 100
 	flags = NOREACT
-	var/global/max_n_of_items = 999 // Sorry but the BYOND infinite loop detector doesn't look things over 1000.
+	var/max_n_of_items = 999 // Sorry but the BYOND infinite loop detector doesn't look things over 1000. //VOREStation Edit - Non-global
 	var/icon_on = "smartfridge"
 	var/icon_off = "smartfridge-off"
 	var/icon_panel = "smartfridge-panel"
@@ -22,6 +21,7 @@
 	var/locked = 0
 	var/scan_id = 1
 	var/is_secure = 0
+	var/wrenchable = 0
 	var/datum/wires/smartfridge/wires = null
 
 /obj/machinery/smartfridge/secure
@@ -128,6 +128,7 @@
 /obj/machinery/smartfridge/drying_rack
 	name = "\improper Drying Rack"
 	desc = "A machine for drying plants."
+	wrenchable = 1
 	icon_state = "drying_rack"
 	icon_on = "drying_rack_on"
 	icon_off = "drying_rack"
@@ -215,6 +216,9 @@
 		if(panel_open)
 			overlays += image(icon, icon_panel)
 		nanomanager.update_uis(src)
+		return
+
+	if(wrenchable && default_unfasten_wrench(user, O, 20))
 		return
 
 	if(istype(O, /obj/item/device/multitool)||istype(O, /obj/item/weapon/wirecutters))

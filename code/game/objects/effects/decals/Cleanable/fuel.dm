@@ -2,11 +2,11 @@
 	//Liquid fuel is used for things that used to rely on volatile fuels or phoron being contained to a couple tiles.
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "fuel"
-	layer = TURF_LAYER+0.2
+	plane = DIRTY_PLANE
 	anchored = 1
 	var/amount = 1
 
-/obj/effect/decal/cleanable/liquid_fuel/New(turf/newLoc,amt=1,nologs=0)
+/obj/effect/decal/cleanable/liquid_fuel/New(turf/newLoc,amt=1,nologs=1)
 	if(!nologs)
 		message_admins("Liquid fuel has spilled in [newLoc.loc.name] ([newLoc.x],[newLoc.y],[newLoc.z]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[newLoc.x];Y=[newLoc.y];Z=[newLoc.z]'>JMP</a>)")
 		log_game("Liquid fuel has spilled in [newLoc.loc.name] ([newLoc.x],[newLoc.y],[newLoc.z])")

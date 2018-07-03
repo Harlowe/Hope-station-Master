@@ -68,6 +68,10 @@
 		user.drop_item()
 		B.loc = src
 		user << "You add \the [loaded_pill_bottle] into the dispenser slot!"
+
+	else if(default_unfasten_wrench(user, B, 20))
+		return
+
 	return
 
 /obj/machinery/chem_master/attack_hand(mob/user as mob)
@@ -216,7 +220,9 @@
 				return
 
 			if (href_list["createpill_multiple"])
-				count = input("Select the number of pills to make.", "Max [max_pill_count]", pillamount) as num
+				count = input("Select the number of pills to make.", "Max [max_pill_count]", pillamount) as null|num
+				if(!count) //Covers 0 and cancel
+					return
 				count = Clamp(count, 1, max_pill_count)
 
 			if(reagents.total_volume/count < 1) //Sanity checking.
@@ -225,7 +231,9 @@
 			var/amount_per_pill = reagents.total_volume/count
 			if (amount_per_pill > 60) amount_per_pill = 60
 
-			var/name = sanitizeSafe(input(usr,"Name:","Name your pill!","[reagents.get_master_reagent_name()] ([amount_per_pill] units)"), MAX_NAME_LEN)
+			var/name = sanitizeSafe(input(usr,"Name:","Name your pill!","[reagents.get_master_reagent_name()] ([amount_per_pill] units)") as null|text, MAX_NAME_LEN)
+			if(!name) //Blank name (sanitized to nothing, or left empty) or cancel
+				return
 
 			if(reagents.total_volume/count < 1) //Sanity checking.
 				return
@@ -277,7 +285,6 @@
 	name = "All-In-One Grinder"
 	icon = 'icons/obj/kitchen.dmi'
 	icon_state = "juicer1"
-	layer = 2.9
 	density = 0
 	anchored = 0
 	use_power = 1
@@ -288,14 +295,20 @@
 	var/obj/item/weapon/reagent_containers/beaker = null
 	var/limit = 10
 	var/list/holdingitems = list()
-	var/list/sheet_reagents = list(
-		/obj/item/stack/material/iron = "iron",
-		/obj/item/stack/material/uranium = "uranium",
-		/obj/item/stack/material/phoron = "phoron",
-		/obj/item/stack/material/gold = "gold",
-		/obj/item/stack/material/silver = "silver",
-		/obj/item/stack/material/platinum = "platinum",
-		/obj/item/stack/material/mhydrogen = "hydrogen"
+	var/list/sheet_reagents = list( //have a number of reageents divisible by REAGENTS_PER_SHEET (default 20) unless you like decimals,
+		/obj/item/stack/material/iron = list("iron"),
+		/obj/item/stack/material/uranium = list("uranium"),
+		/obj/item/stack/material/phoron = list("phoron"),
+		/obj/item/stack/material/gold = list("gold"),
+		/obj/item/stack/material/silver = list("silver"),
+		/obj/item/stack/material/platinum = list("platinum"),
+		/obj/item/stack/material/mhydrogen = list("hydrogen"),
+		/obj/item/stack/material/steel = list("iron", "carbon"),
+		/obj/item/stack/material/plasteel = list("iron", "iron", "carbon", "carbon", "platinum"), //8 iron, 8 carbon, 4 platinum,
+		/obj/item/stack/material/snow = list("water"),
+		/obj/item/stack/material/sandstone = list("silicon", "oxygen"),
+		/obj/item/stack/material/glass = list("silicon"),
+		/obj/item/stack/material/glass/phoronglass = list("platinum", "silicon", "silicon", "silicon"), //5 platinum, 15 silicon,
 		)
 
 /obj/machinery/reagentgrinder/New()
@@ -317,6 +330,12 @@
 			return
 		if(default_deconstruction_crowbar(user, O))
 			return
+
+	//vorestation edit start - for solargrubs
+	if (istype(O, /obj/item/device/multitool))
+		return ..()
+	//vorestation edit end
+
 
 	if (istype(O,/obj/item/weapon/reagent_containers/glass) || \
 		istype(O,/obj/item/weapon/reagent_containers/food/drinks/glass2) || \
@@ -497,12 +516,18 @@
 		if(sheet_reagents[O.type])
 			var/obj/item/stack/stack = O
 			if(istype(stack))
+				var/list/sheet_components = sheet_reagents[stack.type]
 				var/amount_to_take = max(0,min(stack.amount,round(remaining_volume/REAGENTS_PER_SHEET)))
 				if(amount_to_take)
 					stack.use(amount_to_take)
 					if(QDELETED(stack))
 						holdingitems -= stack
-					beaker.reagents.add_reagent(sheet_reagents[stack.type], (amount_to_take*REAGENTS_PER_SHEET))
+					if(islist(sheet_components))
+						amount_to_take = (amount_to_take/(sheet_components.len))
+						for(var/i in sheet_components)
+							beaker.reagents.add_reagent(i, (amount_to_take*REAGENTS_PER_SHEET))
+					else
+						beaker.reagents.add_reagent(sheet_components, (amount_to_take*REAGENTS_PER_SHEET))
 					continue
 
 		if(O.reagents)

@@ -51,7 +51,7 @@
 
 // Make sure mapped in units start turned on.
 /mob/living/bot/initialize()
-	..()
+	. = ..()
 	if(on)
 		turn_on() // Update lights and other stuff
 
@@ -296,6 +296,9 @@
 /mob/living/bot/proc/explode()
 	qdel(src)
 
+/mob/living/bot/is_sentient()
+	return FALSE
+
 /******************************************************************/
 // Navigation procs
 // Used for A-star pathfinding
@@ -380,3 +383,6 @@
 		else return !D.check_access(ID)	// it's a real, air blocking door
 	return 0
 
+
+/mob/living/bot/isSynthetic() //Robots are synthetic, no?
+	return 1

@@ -11,7 +11,7 @@
 */
 
 /datum/language/birdsong
-	name = "Birdsong"
+	name = LANGUAGE_BIRDSONG
 	desc = "A language primarily spoken by Narvians"
 	speech_verb = "chirps"
 	colour = "birdsongc"
@@ -19,7 +19,7 @@
 	syllables = list ("cheep", "peep", "tweet")
 
 /datum/language/sergal
-	name = "Sagaru"
+	name = LANGUAGE_SAGARU
 	desc = "The dominant language of the Sergal homeworld, Vilous. It consists of aggressive low-pitched hissing and throaty growling."
 	speech_verb = "snarls"
 	colour = "sergal"
@@ -27,7 +27,7 @@
 	syllables = list ("grr", "gah", "woof", "arf", "arra", "rah", "wor", "sarg")
 
 /datum/language/vulpkanin
-	name = "Canilunzt"
+	name = LANGUAGE_CANILUNZT
 	desc = "The guttural language spoken and utilized by the inhabitants of Vazzend system, composed of growls, barks, yaps, and heavy utilization of ears and tail movements. Vulpkanin speak this language with ease."
 	speech_verb = "rrrfts"
 	ask_verb = "rurs"
@@ -62,7 +62,7 @@
     "mihi","wan","six","salve","tartu")
 
 /datum/language/squirrel
-	name = "Ecureuilian"
+	name = LANGUAGE_ECUREUILIAN
 	desc = "The native tongue of the inhabitants of Gaia. Squirrelkin and other beastkins of Gaia can use their ears and tails in addition to speech to communitcate."
 	speech_verb = "squeaks"
 	whisper_verb = "whispers"
@@ -72,7 +72,7 @@
 	syllables = list("sque","sqah","boo","beh","nweh","boopa","nah","wah","een","sweh")
 
 /datum/language/demon
-	name = "Daemon"
+	name = LANGUAGE_DAEMON
 	desc = "The language spoken by the demons of Infernum, it's composed of deep chanting. It's rarely spoken off of Infernum due to the volume one has to exert."
 	speech_verb = "chants"
 	ask_verb = "croons"
@@ -81,9 +81,10 @@
 	key = "n"
 	syllables = list("viepn","e","bag","docu","kar","xlaqf","raa","qwos","nen","ty","von","kytaf","xin","ty","ka","baak","hlafaifpyk","znu","agrith","na'ar","uah","plhu","six","fhler","bjel","scee","lleri",
 	"dttm","aggr","uujl","hjjifr","wwuthaav",)
+	machine_understands = FALSE
 
 /datum/language/angel
-	name = "Enochian"
+	name = LANGUAGE_ENOCHIAN
 	desc = "The graceful language spoken by angels, composed of quiet hymns. Formally, Angels sing it."
 	speech_verb = "sings"
 	ask_verb = "hums"
@@ -92,7 +93,15 @@
 	key = "a"
 	syllables = list("salve","sum","loqui","operatur","iusta","et","permittit","facere","effercio","pluribus","enim","hoc",
 	"mihi","wan","six","salve","tartu")
+	machine_understands = FALSE
 
+/datum/language/tajsign
+	name = LANGUAGE_SIIK_TAJR
+	desc = "A type of sign language mostly based on tail movements that was used during the Tajaran rebellion."
+	signlang_verb = list("uses their tail to convey", "gestures with their tail", "gestures with their tail elaborately")
+	colour = "tajaran"
+	key = "l"
+	flags = WHITELISTED | SIGNLANG | NO_STUTTER | NONVERBAL
 
 /datum/language/unathi
 	flags = 0
@@ -106,3 +115,4 @@
 	flags = 0
 /datum/language/gutter
 	flags = WHITELISTED
+	machine_understands = FALSE

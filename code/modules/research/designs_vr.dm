@@ -1,19 +1,11 @@
-/datum/design/excavationdrill
-	name = "Excavation Drill"
-	desc = "Advanced archaeological drill combining ultrasonic excitation and bluespace manipulation to provide extreme precision. The silver tip is adjustable from 1 to 30 cm."
-	id = "excavationdrill"
-	req_tech = list(TECH_MATERIAL = 4, TECH_POWER = 3, TECH_ENGINEERING = 3, TECH_BLUESPACE = 3) //They were never used before. Now they'll be used. Hopefully.
-	build_type = PROTOLATHE
-	materials = list(DEFAULT_WALL_MATERIAL = 4000, "glass" = 1000, "silver" = 1000)
-	build_path = /obj/item/weapon/pickaxe/excavationdrill
-
+/* Make language great again
 /datum/design/item/implant/language
 	name = "Language implant"
 	id = "implant_language"
 	req_tech = list(TECH_MATERIAL = 5, TECH_BIO = 5, TECH_DATA = 4, TECH_ENGINEERING = 4) //This is not an easy to make implant.
 	materials = list(DEFAULT_WALL_MATERIAL = 7000, "glass" = 7000, "gold" = 2000, "diamond" = 3000)
 	build_path = /obj/item/weapon/implantcase/vrlanguage
-
+*/
 /datum/design/item/implant/backup
 	name = "Backup implant"
 	id = "implant_backup"
@@ -87,18 +79,10 @@
 /datum/design/item/translocator
 	name = "Personal translocator"
 	id = "translocator"
-	req_tech = list(TECH_MAGNET = 5, TECH_BLUESPACE = 5, TECH_ILLEGAL = 7)
+	req_tech = list(TECH_MAGNET = 5, TECH_BLUESPACE = 5, TECH_ILLEGAL = 6)
 	materials = list(DEFAULT_WALL_MATERIAL = 4000, "glass" = 2000, "uranium" = 4000, "diamond" = 2000)
 	build_path = /obj/item/device/perfect_tele
 	sort_string = "HABAF"
-
-/datum/design/item/translator/ear
-	name = "handheld translator (ear)"
-	id = "translator_ear"
-	req_tech = list(TECH_DATA = 3, TECH_ENGINEERING = 3)
-	materials = list(DEFAULT_WALL_MATERIAL = 2000, "glass" = 2000)
-	build_path = /obj/item/device/universal_translator/ear
-	sort_string = "HABBB"
 
 /datum/design/item/nif
 	name = "nanite implant framework"
@@ -107,6 +91,23 @@
 	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 8000, "uranium" = 6000, "diamond" = 6000)
 	build_path = /obj/item/device/nif
 	sort_string = "HABBC"
+
+/datum/design/item/nifbio
+	name = "bioadaptive NIF"
+	id = "bioadapnif"
+	req_tech = list(TECH_MAGNET = 5, TECH_BLUESPACE = 5, TECH_MATERIAL = 5, TECH_ENGINEERING = 5, TECH_DATA = 5, TECH_BIO = 5)
+	materials = list(DEFAULT_WALL_MATERIAL = 10000, "glass" = 15000, "uranium" = 10000, "diamond" = 10000)
+	build_path = /obj/item/device/nif/bioadap
+	sort_string = "HABBD" //Changed String from HABBE to HABBD
+//Addiing bioadaptive NIF to Protolathe
+
+/datum/design/item/nifrepairtool
+	name = "adv. NIF repair tool"
+	id = "anrt"
+	req_tech = list(TECH_MAGNET = 5, TECH_BLUESPACE = 5, TECH_MATERIAL = 5, TECH_ENGINEERING = 5, TECH_DATA = 5)
+	materials = list(DEFAULT_WALL_MATERIAL = 200, "glass" = 3000, "uranium" = 2000, "diamond" = 2000)
+	build_path = /obj/item/device/nifrepairer
+	sort_string = "HABBE" //Changed String from HABBD to HABBE
 
 // Resleeving Circuitboards
 
@@ -180,3 +181,130 @@
 	req_tech = list(TECH_PHORON = 3, TECH_DATA = 2, TECH_MAGNET = 2)
 	build_path = /obj/item/weapon/circuitboard/bomb_tester
 	sort_string = "HABAG"
+
+/datum/design/circuit/quantum_pad
+	name = "Quantum Pad"
+	id = "quantum_pad"
+	req_tech = list(TECH_ENGINEERING = 4, TECH_POWER = 4, TECH_BLUESPACE = 4)
+	build_path = /obj/item/weapon/circuitboard/quantumpad
+	sort_string = "HABAH"
+
+//////Micro mech stuff
+/datum/design/circuit/mecha/gopher_main
+	name = "'Gopher' central control"
+	id = "gopher_main"
+	build_path = /obj/item/weapon/circuitboard/mecha/gopher/main
+	sort_string = "NAAEA"
+
+/datum/design/circuit/mecha/gopher_peri
+	name = "'Gopher' peripherals control"
+	id = "gopher_peri"
+	build_path = /obj/item/weapon/circuitboard/mecha/gopher/peripherals
+	sort_string = "NAAEB"
+
+/datum/design/circuit/mecha/polecat_main
+	name = "'Polecat' central control"
+	id = "polecat_main"
+	req_tech = list(TECH_DATA = 4)
+	build_path = /obj/item/weapon/circuitboard/mecha/polecat/main
+	sort_string = "NAAFA"
+
+/datum/design/circuit/mecha/polecat_peri
+	name = "'Polecat' peripherals control"
+	id = "polecat_peri"
+	req_tech = list(TECH_DATA = 4)
+	build_path = /obj/item/weapon/circuitboard/mecha/polecat/peripherals
+	sort_string = "NAAFB"
+
+/datum/design/circuit/mecha/polecat_targ
+	name = "'Polecat' weapon control and targeting"
+	id = "polecat_targ"
+	req_tech = list(TECH_DATA = 4, TECH_COMBAT = 2)
+	build_path = /obj/item/weapon/circuitboard/mecha/polecat/targeting
+	sort_string = "NAAFC"
+
+/datum/design/circuit/mecha/weasel_main
+	name = "'Weasel' central control"
+	id = "weasel_main"
+	req_tech = list(TECH_DATA = 4)
+	build_path = /obj/item/weapon/circuitboard/mecha/weasel/main
+	sort_string = "NAAGA"
+
+/datum/design/circuit/mecha/weasel_peri
+	name = "'Weasel' peripherals control"
+	id = "weasel_peri"
+	req_tech = list(TECH_DATA = 4)
+	build_path = /obj/item/weapon/circuitboard/mecha/weasel/peripherals
+	sort_string = "NAAGB"
+
+/datum/design/circuit/mecha/weasel_targ
+	name = "'Weasel' weapon control and targeting"
+	id = "weasel_targ"
+	req_tech = list(TECH_DATA = 4, TECH_COMBAT = 2)
+	build_path = /obj/item/weapon/circuitboard/mecha/weasel/targeting
+	sort_string = "NAAGC"
+
+////// RIGSuit Stuff
+/*
+/datum/design/item/rig
+	req_tech = list(TECH_MATERIAL = 5, TECH_POWER = 5, TECH_MAGNET = 5)
+	materials = list(DEFAULT_WALL_MATERIAL = 6000, "glass" = 6000, "silver" = 6000, "uranium" = 4000)
+
+/datum/design/item/rig/eva
+	name = "eva hardsuit (empty)"
+	id = "eva_hardsuit"
+	build_path = /obj/item/weapon/rig/eva
+	sort_string = "HCAAA"
+
+/datum/design/item/rig/mining
+	name = "industrial hardsuit (empty)"
+	id = "ind_hardsuit"
+	build_path = /obj/item/weapon/rig/industrial
+	sort_string = "HCAAB"
+
+/datum/design/item/rig/research
+	name = "ami hardsuit (empty)"
+	id = "ami_hardsuit"
+	build_path = /obj/item/weapon/rig/hazmat
+	sort_string = "HCAAC"
+
+/datum/design/item/rig/medical
+	name = "medical hardsuit (empty)"
+	id = "med_hardsuit"
+	build_path = /obj/item/weapon/rig/medical
+	sort_string = "HCAAD"
+*/
+
+/datum/design/item/rig_module
+	req_tech = list(TECH_MATERIAL = 5, TECH_POWER = 5, TECH_MAGNET = 5)
+	materials = list(DEFAULT_WALL_MATERIAL = 6000, "glass" = 6000, "silver" = 4000, "uranium" = 2000)
+
+/datum/design/item/rig_module/plasma_cutter
+	name = "rig module - plasma cutter"
+	id = "rigmod_plasmacutter"
+	build_path = /obj/item/rig_module/device/plasmacutter
+	sort_string = "HCAAE"
+
+/datum/design/item/rig_module/diamond_drill
+	name = "rig module - diamond drill"
+	id = "rigmod_diamonddrill"
+	build_path = /obj/item/rig_module/device/drill
+	sort_string = "HCAAF"
+
+/datum/design/item/rig_module/maneuvering_jets
+	name = "rig module - maneuvering jets"
+	id = "rigmod_maneuveringjets"
+	build_path = /obj/item/rig_module/maneuvering_jets
+	sort_string = "HCAAG"
+
+/datum/design/item/rig_module/anomaly_scanner
+	name = "rig module - anomaly scanner"
+	id = "rigmod_anomalyscanner"
+	build_path = /obj/item/rig_module/device/anomaly_scanner
+	sort_string = "HCAAH"
+
+/datum/design/item/rig_module/orescanner
+	name = "rig module - ore scanner"
+	id = "rigmod_orescanner"
+	build_path = /obj/item/rig_module/device/orescanner
+	sort_string = "HCAAI"

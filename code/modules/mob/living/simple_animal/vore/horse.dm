@@ -1,6 +1,7 @@
 /mob/living/simple_animal/horse
 	name = "horse"
 	desc = "Don't look it in the mouth."
+	tt_desc = "Equus ferus caballus"
 	icon = 'icons/mob/vore.dmi'
 	icon_state = "horse"
 	icon_living = "horse"
@@ -19,7 +20,7 @@
 
 	melee_damage_lower = 1
 	melee_damage_upper = 5
-	attacktext = "kicked"
+	attacktext = list("kicked")
 
 	speak_chance = 1
 	speak = list("NEHEHEHEHEH","Neh?")

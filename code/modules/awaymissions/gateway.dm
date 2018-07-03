@@ -1,6 +1,6 @@
 /obj/machinery/gateway
 	name = "gateway"
-	desc = "A mysterious gateway built by unknown hands.  It allows for faster than light travel to far-flung locations and even alternate realities."
+	desc = "A mysterious gateway built by unknown hands.  It allows for faster than light travel to far-flung locations and even alternate realities."  //VOREStation Edit
 	icon = 'icons/obj/machines/gateway.dmi'
 	icon_state = "off"
 	density = 1
@@ -10,14 +10,9 @@
 
 /obj/machinery/gateway/initialize()
 	update_icon()
-	if(dir == 2 || dir == 6 || dir == 10)
+	if(dir == SOUTH)
 		density = 0
-
-/obj/machinery/gateway/New() // Doesn't initialize in generated maps which is bad.
-	update_icon()
-	if(dir == 2 || dir == 6 || dir == 10)
-		density = 0
-
+	. = ..()
 
 /obj/machinery/gateway/update_icon()
 	if(active)
@@ -43,7 +38,7 @@
 	update_icon()
 	wait = world.time + config.gateway_delay	//+ thirty minutes default
 	awaygate = locate(/obj/machinery/gateway/centeraway)
-
+	. = ..()
 
 /obj/machinery/gateway/centerstation/update_icon()
 	if(active)
@@ -94,6 +89,9 @@ obj/machinery/gateway/centerstation/process()
 		return
 	if(world.time < wait)
 		user << "<span class='notice'>Error: Warpspace triangulation in progress. Estimated time to completion: [round(((wait - world.time) / 10) / 60)] minutes.</span>"
+		return
+	if(!awaygate.calibrated && LAZYLEN(awaydestinations))
+		user << "<span class='notice'>Error: Destination gate uncalibrated. Gateway unsafe to use without far-end calibration update.</span>"
 		return
 
 	for(var/obj/machinery/gateway/G in linked)
@@ -169,6 +167,7 @@ obj/machinery/gateway/centerstation/process()
 /obj/machinery/gateway/centeraway/initialize()
 	update_icon()
 	stationgate = locate(/obj/machinery/gateway/centerstation)
+	. = ..()
 
 
 /obj/machinery/gateway/centeraway/update_icon()
@@ -253,10 +252,12 @@ obj/machinery/gateway/centerstation/process()
 			user << "<font color='black'>The gate is already calibrated, there is no work for you to do here.</font>"
 			return
 		else
+			// VOREStation Add
 			stationgate = locate(/obj/machinery/gateway/centerstation)
 			if(!stationgate)
 				user << "<span class='notice'>Error: Recalibration failed. No destination found... That can't be good.</span>"
 				return
+			// VOREStation Add End
 			else
 				user << "<font color='blue'><b>Recalibration successful!</b>:</font><font color='black'> This gate's systems have been fine tuned. Travel to this gate will now be on target.</font>"
 				calibrated = 1

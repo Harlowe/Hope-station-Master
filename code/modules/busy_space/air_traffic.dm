@@ -43,9 +43,9 @@ var/datum/lore/atc_controller/atc = new/datum/lore/atc_controller
 		squelched = 0
 
 /datum/lore/atc_controller/proc/shift_ending(var/evac = 0)
-	msg("Automated Shuttle departing [using_map.station_name] for [using_map.dock_name] on routine transfer route.","NT Automated Shuttle")
+	msg("Automated Tram departing [using_map.station_name] for [using_map.dock_name] on routine transfer route.","NT Automated Tram") //VOREStation Edit - Tram, tho.
 	sleep(5 SECONDS)
-	msg("Automated Shuttle, cleared to complete routine transfer from [using_map.station_name] to [using_map.dock_name].")
+	msg("Automated Tram, cleared to complete routine transfer from [using_map.station_name] to [using_map.dock_name].") //VOREStation Edit - Tram, tho.
 
 /datum/lore/atc_controller/proc/random_convo()
 	var/one = pick(loremaster.organizations) //These will pick an index, not an instance
@@ -63,7 +63,7 @@ var/datum/lore/atc_controller/atc = new/datum/lore/atc_controller
 
 	var/combined_name = "[owner] [prefix] [shipname]"
 	var/alt_atc_names = list("[using_map.station_short] TraCon","[using_map.station_short] Control","[using_map.station_short] STC","[using_map.station_short] Airspace")
-	var/wrong_atc_names = list("Sol Command","Orion Control", "[using_map.dock_name]")
+	var/wrong_atc_names = list("Sol Command","New Reykjavik StarCon", "[using_map.dock_name]")
 	var/mission_noun = list("flight","mission","route")
 	var/request_verb = list("requesting","calling for","asking for")
 

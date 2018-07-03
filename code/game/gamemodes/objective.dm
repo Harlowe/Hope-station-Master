@@ -69,7 +69,8 @@ datum/objective/anti_revolution/execute
 	find_target()
 		..()
 		if(target && target.current)
-			explanation_text = "[target.current.real_name], the [target.assigned_role] has extracted confidential information above their clearance. Execute \him[target.current]."
+			var/datum/gender/T = gender_datums[target.current.get_visible_gender()]
+			explanation_text = "[target.current.real_name], the [target.assigned_role] has extracted confidential information above their clearance. Execute [T.him]."
 		else
 			explanation_text = "Free Objective"
 		return target
@@ -78,7 +79,8 @@ datum/objective/anti_revolution/execute
 	find_target_by_role(role, role_type=0)
 		..(role, role_type)
 		if(target && target.current)
-			explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has extracted confidential information above their clearance. Execute \him[target.current]."
+			var/datum/gender/T = gender_datums[target.current.get_visible_gender()]
+			explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has extracted confidential information above their clearance. Execute [T.him]."
 		else
 			explanation_text = "Free Objective"
 		return target
@@ -127,7 +129,8 @@ datum/objective/anti_revolution/demote
 	find_target()
 		..()
 		if(target && target.current)
-			explanation_text = "[target.current.real_name], the [target.assigned_role]  has been classified as harmful to [using_map.company_name]'s goals. Demote \him[target.current] to assistant."
+			var/datum/gender/T = gender_datums[target.current.get_visible_gender()]
+			explanation_text = "[target.current.real_name], the [target.assigned_role]  has been classified as harmful to [using_map.company_name]'s goals. Demote [T.him] to assistant."
 		else
 			explanation_text = "Free Objective"
 		return target
@@ -135,7 +138,8 @@ datum/objective/anti_revolution/demote
 	find_target_by_role(role, role_type=0)
 		..(role, role_type)
 		if(target && target.current)
-			explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has been classified as harmful to [using_map.company_name]'s goals. Demote \him[target.current] to assistant."
+			var/datum/gender/T = gender_datums[target.current.get_visible_gender()]
+			explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has been classified as harmful to [using_map.company_name]'s goals. Demote [T.him] to assistant."
 		else
 			explanation_text = "Free Objective"
 		return target
@@ -149,7 +153,7 @@ datum/objective/anti_revolution/demote
 
 			if(!istype(I)) return 1
 
-			if(I.assignment == "Assistant")
+			if(I.assignment == USELESS_JOB) //VOREStation Edit - Visitor not Assistant
 				return 1
 			else
 				return 0
@@ -520,7 +524,7 @@ datum/objective/steal
 						if(istype(M, /mob/living/silicon/ai) && M.stat != 2) //See if any AI's are alive inside that card.
 							return 1
 
-				for(var/mob/living/silicon/ai/ai in world)
+				for(var/mob/living/silicon/ai/ai in mob_list)
 					var/turf/T = get_turf(ai)
 					if(istype(T))
 						var/area/check_area = get_area(ai)

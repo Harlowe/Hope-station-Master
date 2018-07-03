@@ -32,7 +32,7 @@
 	desc = "An advanced nanite and chemical synthesizer and injection system, designed for heavy-duty medical equipment.  This type is capable of safely bypassing \
 	thick materials that other hyposprays would struggle with."
 	bypass_protection = TRUE // Because mercs tend to be in spacesuits.
-	reagent_ids = list("healing_nanites", "hyperzine", "tramadol", "oxycodone", "spaceacillin", "peridaxon", "osteodaxon", "myelamine")
+	reagent_ids = list("healing_nanites", "hyperzine", "tramadol", "oxycodone", "spaceacillin", "peridaxon", "osteodaxon", "myelamine", "synthblood")
 
 /obj/item/weapon/reagent_containers/borghypo/New()
 	..()
@@ -91,7 +91,7 @@
 			var/t = min(amount_per_transfer_from_this, reagent_volumes[reagent_ids[mode]])
 			M.reagents.add_reagent(reagent_ids[mode], t)
 			reagent_volumes[reagent_ids[mode]] -= t
-			admin_inject_log(user, M, src, reagent_ids[mode], t)
+			add_attack_logs(user, M, "Borg injected with [reagent_ids[mode]]")
 			user << "<span class='notice'>[t] units injected. [reagent_volumes[reagent_ids[mode]]] units remaining.</span>"
 	return
 
@@ -135,7 +135,7 @@
 	recharge_time = 3
 	volume = 60
 	possible_transfer_amounts = list(5, 10, 20, 30)
-	reagent_ids = list("ale", "beer", "berryjuice", "coffee", "cognac", "cola", "dr_gibb", "egg", "gin", "gingerale", "hot_coco", "ice", "icetea", "kahlua", "lemonjuice", "lemon_lime", "limejuice", "mead", "milk", "mint", "orangejuice", "rum", "sake", "sodawater", "soymilk", "space_up", "spacemountainwind", "specialwhiskey", "sugar", "tea", "tequilla", "tomatojuice", "tonic", "vermouth", "vodka", "water", "watermelonjuice", "whiskey", "wine")
+	reagent_ids = list("ale", "beer", "berryjuice", "bitters", "coffee", "cognac", "cola", "dr_gibb", "egg", "gin", "gingerale", "hot_coco", "ice", "icetea", "kahlua", "lemonjuice", "lemon_lime", "limejuice", "mead", "milk", "mint", "orangejuice", "rum", "sake", "sodawater", "soymilk", "space_up", "spacemountainwind", "specialwhiskey", "sugar", "tea", "tequilla", "tomatojuice", "tonic", "vermouth", "vodka", "water", "watermelonjuice", "whiskey", "wine")
 
 /obj/item/weapon/reagent_containers/borghypo/service/attack(var/mob/M, var/mob/user)
 	return

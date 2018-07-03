@@ -97,6 +97,7 @@ Class Procs:
 	name = "machinery"
 	icon = 'icons/obj/stationobjs.dmi'
 	w_class = ITEMSIZE_NO_CONTAINER
+	layer = UNDER_JUNK_LAYER
 
 	var/stat = 0
 	var/emagged = 0
@@ -112,22 +113,23 @@ Class Procs:
 	var/panel_open = 0
 	var/global/gl_uid = 1
 	var/interact_offline = 0 // Can the machine be interacted with while de-powered.
-	var/circuit = null
+	var/obj/item/weapon/circuitboard/circuit = null
 
 /obj/machinery/New(l, d=0)
 	..(l)
 	if(d)
 		set_dir(d)
-	if(!machinery_sort_required && ticker)
-		dd_insertObjectList(machines, src)
-	else
-		machines += src
-		machinery_sort_required = 1
 	if(circuit)
 		circuit = new circuit(src)
 
+/obj/machinery/initialize()
+	. = ..()
+	global.machines += src
+	START_MACHINE_PROCESSING(src)
+
 /obj/machinery/Destroy()
-	machines -= src
+	STOP_MACHINE_PROCESSING(src)
+	global.machines -= src
 	if(component_parts)
 		for(var/atom/A in component_parts)
 			if(A.loc == src) // If the components are inside the machine, delete them.
@@ -291,36 +293,56 @@ Class Procs:
 	RefreshParts()
 
 /obj/machinery/proc/default_part_replacement(var/mob/user, var/obj/item/weapon/storage/part_replacer/R)
-	if(istype(R) && component_parts)
-		if(panel_open || R.works_from_distance)
-			var/obj/item/weapon/circuitboard/CB = circuit
-			var/P
-			if(R.works_from_distance)
-				user << "<span class='notice'>Following parts detected in the machine:</span>"
-				for(var/var/obj/item/C in component_parts) //var/var/obj/item/C?
-					user << "<span class='notice'>    [C.name]</span>"
-			for(var/obj/item/weapon/stock_parts/A in component_parts)
-				for(var/T in CB.req_components)
-					if(ispath(A.type, T))
-						P = T
+	if(!istype(R))
+		return 0
+	if(!component_parts)
+		return 0
+	if(panel_open)
+		var/obj/item/weapon/circuitboard/CB = circuit
+		var/P
+		for(var/obj/item/weapon/stock_parts/A in component_parts)
+			for(var/T in CB.req_components)
+				if(ispath(A.type, T))
+					P = T
+					break
+			for(var/obj/item/weapon/stock_parts/B in R.contents)
+				if(istype(B, P) && istype(A, P))
+					if(B.rating > A.rating)
+						R.remove_from_storage(B, src)
+						R.handle_item_insertion(A, 1)
+						component_parts -= A
+						component_parts += B
+						B.loc = null
+						user << "<span class='notice'>[A.name] replaced with [B.name].</span>"
 						break
-				for(var/obj/item/weapon/stock_parts/B in R.contents)
-					if(istype(B, P) && istype(A, P))
-						if(B.rating > A.rating)
-							R.remove_from_storage(B, src)
-							R.handle_item_insertion(A, 1)
-							component_parts -= A
-							component_parts += B
-							B.loc = null
-							user << "<span class='notice'>[A.name] replaced with [B.name].</span>"
-							break
 			update_icon()
 			RefreshParts()
-		else
-			user << "<span class='notice'>Following parts detected in the machine:</span>"
-			for(var/var/obj/item/C in component_parts) //var/var/obj/item/C?
-				user << "<span class='notice'>    [C.name]</span>"
-		return 1
+	else
+		user << "<span class='notice'>Following parts detected in the machine:</span>"
+		for(var/var/obj/item/C in component_parts) //var/var/obj/item/C?
+			user << "<span class='notice'>    [C.name]</span>"
+	return 1
+
+// Default behavior for wrenching down machines.  Supports both delay and instant modes.
+/obj/machinery/proc/default_unfasten_wrench(var/mob/user, var/obj/item/weapon/wrench/W, var/time = 0)
+	if(!istype(W))
+		return FALSE
+	if(panel_open)
+		return FALSE // Close panel first!
+	playsound(loc, W.usesound, 50, 1)	
+	var/actual_time = W.toolspeed * time
+	if(actual_time != 0)
+		user.visible_message( \
+			"<span class='warning'>\The [user] begins [anchored ? "un" : ""]securing \the [src].</span>", \
+			"<span class='notice'>You start [anchored ? "un" : ""]securing \the [src].</span>")
+	if(actual_time == 0 || do_after(user, actual_time, target = src))
+		user.visible_message( \
+			"<span class='warning'>\The [user] has [anchored ? "un" : ""]secured \the [src].</span>", \
+			"<span class='notice'>You [anchored ? "un" : ""]secure \the [src].</span>")
+		anchored = !anchored
+		power_change() //Turn on or off the machine depending on the status of power in the new area.
+		update_icon()
+	return TRUE
 
 /obj/machinery/proc/default_deconstruction_crowbar(var/mob/user, var/obj/item/weapon/crowbar/C)
 	if(!istype(C))
@@ -383,7 +405,7 @@ Class Procs:
 	if(A.frame_type.circuit)
 		A.need_circuit = 0
 
-	if(A.frame_type.frame_class == "machine")
+	if(A.frame_type.frame_class == FRAME_CLASS_MACHINE)
 		for(var/obj/D in component_parts)
 			D.forceMove(src.loc)
 		if(A.components)
@@ -393,15 +415,15 @@ Class Procs:
 		component_parts = list()
 		A.check_components()
 
-	if(A.frame_type.frame_class == "alarm")
-		A.state = 2
-	else if(A.frame_type.frame_class == "computer" || A.frame_type.frame_class == "display")
+	if(A.frame_type.frame_class == FRAME_CLASS_ALARM)
+		A.state = FRAME_FASTENED
+	else if(A.frame_type.frame_class == FRAME_CLASS_COMPUTER || A.frame_type.frame_class == FRAME_CLASS_DISPLAY)
 		if(stat & BROKEN)
-			A.state = 3
+			A.state = FRAME_WIRED
 		else
-			A.state = 4
+			A.state = FRAME_PANELED
 	else
-		A.state = 3
+		A.state = FRAME_WIRED
 
 	A.set_dir(dir)
 	A.pixel_x = pixel_x

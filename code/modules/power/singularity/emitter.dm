@@ -42,13 +42,13 @@
 	return 1
 
 /obj/machinery/power/emitter/initialize()
-	..()
+	. = ..()
 	if(state == 2 && anchored)
 		connect_to_network()
 
 /obj/machinery/power/emitter/Destroy()
 	message_admins("Emitter deleted at ([x],[y],[z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)",0,1)
-	log_game("Emitter deleted at ([x],[y],[z])")
+	log_game("EMITTER([x],[y],[z]) Destroyed/deleted.")
 	investigate_log("<font color='red'>deleted</font> at ([x],[y],[z])","singulo")
 	..()
 
@@ -72,7 +72,7 @@
 				src.active = 0
 				user << "You turn off [src]."
 				message_admins("Emitter turned off by [key_name(user, user.client)](<A HREF='?_src_=holder;adminmoreinfo=\ref[user]'>?</A>) in ([x],[y],[z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)",0,1)
-				log_game("Emitter turned off by [user.ckey]([user]) in ([x],[y],[z])")
+				log_game("EMITTER([x],[y],[z]) OFF by [key_name(user)]")
 				investigate_log("turned <font color='red'>off</font> by [user.key]","singulo")
 			else
 				src.active = 1
@@ -80,7 +80,7 @@
 				src.shot_number = 0
 				src.fire_delay = get_initial_fire_delay()
 				message_admins("Emitter turned on by [key_name(user, user.client)](<A HREF='?_src_=holder;adminmoreinfo=\ref[user]'>?</A>) in ([x],[y],[z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)",0,1)
-				log_game("Emitter turned on by [user.ckey]([user]) in ([x],[y],[z])")
+				log_game("EMITTER([x],[y],[z]) ON by [key_name(user)]")
 				investigate_log("turned <font color='green'>on</font> by [user.key]","singulo")
 			update_icon()
 		else
@@ -112,11 +112,13 @@
 			if(!powered)
 				powered = 1
 				update_icon()
+				log_game("EMITTER([x],[y],[z]) Regained power and is ON.")
 				investigate_log("regained power and turned <font color='green'>on</font>","singulo")
 		else
 			if(powered)
 				powered = 0
 				update_icon()
+				log_game("EMITTER([x],[y],[z]) Lost power and was ON.")
 				investigate_log("lost power and turned <font color='red'>off</font>","singulo")
 			return
 
@@ -163,6 +165,7 @@
 					"You undo the external reinforcing bolts.", \
 					"You hear a ratchet.")
 				src.anchored = 0
+				disconnect_from_network()
 			if(2)
 				user << "<span class='warning'>\The [src] needs to be unwelded from the floor.</span>"
 		return
@@ -250,14 +253,21 @@
 	if(!P || !P.damage || P.get_structure_damage() <= 0 )
 		return
 
-	integrity = integrity - P.damage
-	if(integrity <= 0)
+	adjust_integrity(-P.get_structure_damage())
+
+/obj/machinery/power/emitter/blob_act()
+	adjust_integrity(-1000) // This kills the emitter.
+
+/obj/machinery/power/emitter/proc/adjust_integrity(amount)
+	integrity = between(0, integrity + amount, initial(integrity))
+	if(integrity == 0)
 		if(powernet && avail(active_power_usage)) // If it's powered, it goes boom if killed.
 			visible_message(src, "<span class='danger'>\The [src] explodes violently!</span>", "<span class='danger'>You hear an explosion!</span>")
 			explosion(get_turf(src), 1, 2, 4)
 		else
 			src.visible_message("<span class='danger'>\The [src] crumples apart!</span>", "<span class='warning'>You hear metal collapsing.</span>")
-		qdel(src)
+		if(src)
+			qdel(src)
 
 /obj/machinery/power/emitter/examine(mob/user)
 	..()

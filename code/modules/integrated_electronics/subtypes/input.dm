@@ -20,7 +20,7 @@
 
 
 /obj/item/integrated_circuit/input/button/ask_for_input(mob/user) //Bit misleading name for this specific use.
-	to_chat(user, "<span class='notice'>You press the button labeled '[src.name]'.</span>")
+	to_chat(user, "<span class='notice'>You press the button labeled '[src.displayed_name]'.</span>")
 	activate_pin(1)
 
 /obj/item/integrated_circuit/input/toggle_button
@@ -38,7 +38,7 @@
 	set_pin_data(IC_OUTPUT, 1, !get_pin_data(IC_OUTPUT, 1))
 	push_data()
 	activate_pin(1)
-	to_chat(user, "<span class='notice'>You toggle the button labeled '[src.name]' [get_pin_data(IC_OUTPUT, 1) ? "on" : "off"].</span>")
+	to_chat(user, "<span class='notice'>You toggle the button labeled '[src.displayed_name]' [get_pin_data(IC_OUTPUT, 1) ? "on" : "off"].</span>")
 
 /obj/item/integrated_circuit/input/numberpad
 	name = "number pad"
@@ -335,7 +335,7 @@
 	var/datum/radio_frequency/radio_connection
 
 /obj/item/integrated_circuit/input/signaler/initialize()
-	..()
+	. = ..()
 	set_frequency(frequency)
 	// Set the pins so when someone sees them, they won't show as null
 	set_pin_data(IC_INPUT, 1, frequency)

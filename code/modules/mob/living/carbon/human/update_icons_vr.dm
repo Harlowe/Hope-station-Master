@@ -1,4 +1,8 @@
+// WARNING - UNUSED PROC
 /mob/living/carbon/human/proc/get_wing_icon()
+	if(QDESTROYING(src))
+		return
+
 	var/icon_key = "[species.get_race_key(src)][r_skin][g_skin][b_skin][r_hair][g_hair][b_hair]"
 	var/icon/wing_icon = wing_icon_cache[icon_key]
 	if(!wing_icon)
@@ -21,7 +25,11 @@
 
 	return wing_icon
 
+// WARNING - UNUSED PROC
 /mob/living/carbon/human/proc/set_wing_state(var/t_state)
+	if(QDESTROYING(src))
+		return
+
 	var/image/wing_overlay = overlays_standing[WING_LAYER]
 
 	if(wing_overlay && species.get_wing_animation(src))
@@ -29,17 +37,19 @@
 		return wing_overlay
 	return null
 
+// WARNING - UNUSED PROC
 /mob/living/carbon/human/proc/animate_wing_reset(var/update_icons=1)
 	if(stat != DEAD)
 		set_wing_state("[species.get_wing(src)]_idle[rand(0,9)]")
 	else
 		set_wing_state("[species.get_wing(src)]_static")
-	toggle_wing_vr(0)
-	if(update_icons)
-		update_icons()
+		toggle_wing_vr(FALSE)
 
 /mob/living/carbon/human/proc/get_wing_image()
-	//If you are FBP with tail style and didn't set a custom one
+	if(QDESTROYING(src))
+		return
+
+	//If you are FBP with wing style and didn't set a custom one
 	if(synthetic && synthetic.includes_wing && !wing_style)
 		var/icon/wing_s = new/icon("icon" = synthetic.icon, "icon_state" = "wing") //I dunno. If synths have some custom wing?
 		wing_s.Blend(rgb(src.r_skin, src.g_skin, src.b_skin), species.color_mult ? ICON_MULTIPLY : ICON_ADD)
@@ -50,22 +60,15 @@
 		var/icon/wing_s = new/icon("icon" = wing_style.icon, "icon_state" = flapping && wing_style.ani_state ? wing_style.ani_state : wing_style.icon_state)
 		if(wing_style.do_colouration)
 			wing_s.Blend(rgb(src.r_wing, src.g_wing, src.b_wing), wing_style.color_blend_mode)
-			return image(wing_s)
-		else
-			return image(wing_s)
-	return null
+		return image(wing_s)
 
-/mob/living/carbon/human/proc/update_wing_showing(var/update_icons=1)
-	overlays_standing[WING_LAYER] = null
-
-	overlays_standing[WING_LAYER] = get_wing_image()
-	if(overlays_standing[WING_LAYER])
-		if(update_icons)
-			update_icons()
+// TODO - Move this to where it should go ~Leshana
+/mob/proc/stop_flying()
+	if(QDESTROYING(src))
 		return
+	flying = FALSE
+	return 1
 
-/mob/proc/stop_flying(var/update_icons=1)
-	flying = 0
-
-	if(update_icons)
-		update_icons()
+/mob/living/carbon/human/stop_flying()
+	if((. = ..()))
+		update_wing_showing()

@@ -1,11 +1,11 @@
-/obj/structure/crematorium/vr
+/obj/structure/morgue/crematorium/vr
 	var/list/allowed_items = list(/obj/item/organ,
 			/obj/item/weapon/implant,
 			/obj/item/weapon/material/shard/shrapnel,
 			/mob/living)
 
 
-/obj/structure/crematorium/vr/cremate(atom/A, mob/user as mob)
+/obj/structure/morgue/crematorium/vr/cremate(atom/A, mob/user as mob)
 	if(cremating)
 		return //don't let you cremate something twice or w/e
 
@@ -44,10 +44,6 @@
 					if (C.can_feel_pain())
 						C.emote("scream")
 
-			//Logging for this causes runtimes resulting in the cremator locking up. Commenting it out until that's figured out.
-			//M.attack_log += "\[[time_stamp()]\] Has been cremated by <b>[user]/[user.ckey]</b>" //No point in this when the mob's about to be deleted
-			//user.attack_log +="\[[time_stamp()]\] Cremated <b>[M]/[M.ckey]</b>"
-			//log_attack("\[[time_stamp()]\] <b>[user]/[user.ckey]</b> cremated <b>[M]/[M.ckey]</b>")
 			M.death(1)
 			M.ghostize()
 			qdel(M)

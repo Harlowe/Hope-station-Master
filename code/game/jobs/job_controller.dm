@@ -25,6 +25,7 @@ var/global/datum/controller/occupations/job_master
 			if(!job)	continue
 			if(job.faction != faction)	continue
 			occupations += job
+		sortTim(occupations, /proc/cmp_job_datums)
 
 
 		return 1
@@ -76,7 +77,7 @@ var/global/datum/controller/occupations/job_master
 
 	proc/FreeRole(var/rank)	//making additional slot on the fly
 		var/datum/job/job = GetJob(rank)
-		if(job && job.current_positions >= job.total_positions && job.total_positions != -1)
+		if(job && job.total_positions != -1)
 			job.total_positions++
 			return 1
 		return 0
@@ -116,7 +117,7 @@ var/global/datum/controller/occupations/job_master
 			if(job.minimum_character_age && (player.client.prefs.age < job.minimum_character_age))
 				continue
 
-			if(istype(job, GetJob("Assistant"))) // We don't want to give him assistant, that's boring!
+			if(istype(job, GetJob(USELESS_JOB))) // We don't want to give him assistant, that's boring! //VOREStation Edit - Visitor not Assistant
 				continue
 
 			if(job.title in command_positions) //If you want a command position, select it!
@@ -241,7 +242,7 @@ var/global/datum/controller/occupations/job_master
 		Debug("AC1, Candidates: [assistant_candidates.len]")
 		for(var/mob/new_player/player in assistant_candidates)
 			Debug("AC1 pass, Player: [player]")
-			AssignRole(player, "Assistant")
+			AssignRole(player, USELESS_JOB) //VOREStation Edit - Visitor not Assistant
 			assistant_candidates -= player
 		Debug("DO, AC1 end")
 
@@ -322,7 +323,7 @@ var/global/datum/controller/occupations/job_master
 		for(var/mob/new_player/player in unassigned)
 			if(player.client.prefs.alternate_option == BE_ASSISTANT)
 				Debug("AC2 Assistant located, Player: [player]")
-				AssignRole(player, "Assistant")
+				AssignRole(player, USELESS_JOB) //VOREStation Edit - Visitor not Assistant
 
 		//For ones returning to lobby
 		for(var/mob/new_player/player in unassigned)
@@ -338,6 +339,27 @@ var/global/datum/controller/occupations/job_master
 
 		var/datum/job/job = GetJob(rank)
 		var/list/spawn_in_storage = list()
+
+		if(!joined_late)
+			var/obj/S = null
+			for(var/obj/effect/landmark/start/sloc in landmarks_list)
+				if(sloc.name != rank)	continue
+				if(locate(/mob/living) in sloc.loc)	continue
+				S = sloc
+				break
+			if(!S)
+				S = locate("start*[rank]") // use old stype
+			if(istype(S, /obj/effect/landmark/start) && istype(S.loc, /turf))
+				H.forceMove(S.loc)
+			else
+				var/list/spawn_props = LateSpawn(H.client, rank)
+				var/turf/T = spawn_props["turf"]
+				H.forceMove(T)
+
+			// Moving wheelchair if they have one
+			if(H.buckled && istype(H.buckled, /obj/structure/bed/chair/wheelchair))
+				H.buckled.forceMove(H.loc)
+				H.buckled.set_dir(H.dir)
 
 		if(job)
 
@@ -391,7 +413,8 @@ var/global/datum/controller/occupations/job_master
 			job.equip_backpack(H)
 //			job.equip_survival(H)
 			job.apply_fingerprints(H)
-			H.equip_post_job()
+			if(job.title != "Cyborg" && job.title != "AI")
+				H.equip_post_job()
 
 			//If some custom items could not be equipped before, try again now.
 			for(var/thing in custom_equip_leftovers)
@@ -409,25 +432,7 @@ var/global/datum/controller/occupations/job_master
 			H << "Your job is [rank] and the game just can't handle it! Please report this bug to an administrator."
 
 		H.job = rank
-
-		if(!joined_late)
-			var/obj/S = null
-			for(var/obj/effect/landmark/start/sloc in landmarks_list)
-				if(sloc.name != rank)	continue
-				if(locate(/mob/living) in sloc.loc)	continue
-				S = sloc
-				break
-			if(!S)
-				S = locate("start*[rank]") // use old stype
-			if(istype(S, /obj/effect/landmark/start) && istype(S.loc, /turf))
-				H.forceMove(S.loc)
-			else
-				LateSpawn(H, rank)
-
-			// Moving wheelchair if they have one
-			if(H.buckled && istype(H.buckled, /obj/structure/bed/chair/wheelchair))
-				H.buckled.forceMove(H.loc)
-				H.buckled.set_dir(H.dir)
+		log_game("JOINED [key_name(H)] as \"[rank]\"")
 
 		// If they're head, give them the account info for their department
 		if(H.mind && job.head_position)
@@ -480,10 +485,9 @@ var/global/datum/controller/occupations/job_master
 				R = locate() in S.contents
 			if(!l_foot || !r_foot || R)
 				var/obj/structure/bed/chair/wheelchair/W = new /obj/structure/bed/chair/wheelchair(H.loc)
-				H.buckled = W
+				W.buckle_mob(H)
 				H.update_canmove()
 				W.set_dir(H.dir)
-				W.buckled_mob = H
 				W.add_fingerprint(H)
 				if(R)
 					W.color = R.color
@@ -517,7 +521,8 @@ var/global/datum/controller/occupations/job_master
 
 	proc/spawnId(var/mob/living/carbon/human/H, rank, title)
 		if(!H)	return 0
-		var/obj/item/weapon/card/id/C = null
+		var/obj/item/weapon/card/id/C = H.get_equipped_item(slot_wear_id)
+		if(istype(C))  return 0
 
 		var/datum/job/job = null
 		for(var/datum/job/J in occupations)
@@ -620,32 +625,30 @@ var/global/datum/controller/occupations/job_master
 			tmp_str += "HIGH=[level1]|MEDIUM=[level2]|LOW=[level3]|NEVER=[level4]|BANNED=[level5]|YOUNG=[level6]|-"
 			feedback_add_details("job_preferences",tmp_str)
 
-/datum/controller/occupations/proc/LateSpawn(var/mob/living/carbon/human/H, var/rank)
-	//spawn at one of the latespawn locations
+/datum/controller/occupations/proc/LateSpawn(var/client/C, var/rank)
 
 	var/datum/spawnpoint/spawnpos
 
-//	if(H.client.prefs.spawnpoint)
-//		spawnpos = spawntypes[H.client.prefs.spawnpoint]
-
-	if(H.client.prefs.spawnpoint)
-		if(!(H.client.prefs.spawnpoint in using_map.allowed_spawns))
-			if(H) // This seems redundant...
-				to_chat(H, "<span class='warning'>Your chosen spawnpoint ([H.client.prefs.spawnpoint]) is unavailable for the current map. Spawning you at one of the enabled spawn points instead.</span>")
+	//Spawn them at their preferred one
+	if(C && C.prefs.spawnpoint)
+		if(!(C.prefs.spawnpoint in using_map.allowed_spawns))
+			to_chat(C, "<span class='warning'>Your chosen spawnpoint ([C.prefs.spawnpoint]) is unavailable for the current map. Spawning you at one of the enabled spawn points instead.</span>")
 			spawnpos = null
 		else
-			spawnpos = spawntypes[H.client.prefs.spawnpoint]
+			spawnpos = spawntypes[C.prefs.spawnpoint]
 
+	//We will return a list key'd by "turf" and "msg"
+	. = list("turf","msg")
 	if(spawnpos && istype(spawnpos) && spawnpos.turfs.len)
 		if(spawnpos.check_job_spawning(rank))
-			H.forceMove(spawnpos.get_spawn_position())
-			. = spawnpos.msg
+			.["turf"] = spawnpos.get_spawn_position()
+			.["msg"] = spawnpos.msg
 		else
-			H << "Your chosen spawnpoint ([spawnpos.display_name]) is unavailable for your chosen job. Spawning you at the Arrivals shuttle instead."
+			to_chat(C,"Your chosen spawnpoint ([spawnpos.display_name]) is unavailable for your chosen job. Spawning you at the Arrivals shuttle instead.")
 			var/spawning = pick(latejoin)
-			H.forceMove(get_turf(spawning))
-			. = "will arrive to the station shortly by shuttle"
+			.["turf"] = get_turf(spawning)
+			.["msg"] = "will arrive at the station shortly"  //VOREStation Edit - Grammar but mostly 'shuttle' reference removal, and this also applies to notified spawn-character verb use
 	else
 		var/spawning = pick(latejoin)
-		H.forceMove(get_turf(spawning))
-		. = "has arrived on the station"
+		.["turf"] = get_turf(spawning)
+		.["msg"] = "has arrived on the station"

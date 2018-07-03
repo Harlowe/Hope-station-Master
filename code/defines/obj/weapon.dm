@@ -102,8 +102,9 @@
 	temp_blade.attack_self()
 
 /obj/item/weapon/cane/concealed/attack_self(var/mob/user)
+	var/datum/gender/T = gender_datums[user.get_visible_gender()]
 	if(concealed_blade)
-		user.visible_message("<span class='warning'>[user] has unsheathed \a [concealed_blade] from \his [src]!</span>", "You unsheathe \the [concealed_blade] from \the [src].")
+		user.visible_message("<span class='warning'>[user] has unsheathed \a [concealed_blade] from [T.his] [src]!</span>", "You unsheathe \the [concealed_blade] from \the [src].")
 		// Calling drop/put in hands to properly call item drop/pickup procs
 		playsound(user.loc, 'sound/weapons/flipblade.ogg', 50, 1)
 		user.drop_from_inventory(src)
@@ -117,7 +118,8 @@
 
 /obj/item/weapon/cane/concealed/attackby(var/obj/item/weapon/material/butterfly/W, var/mob/user)
 	if(!src.concealed_blade && istype(W))
-		user.visible_message("<span class='warning'>[user] has sheathed \a [W] into \his [src]!</span>", "You sheathe \the [W] into \the [src].")
+		var/datum/gender/T = gender_datums[user.get_visible_gender()]
+		user.visible_message("<span class='warning'>[user] has sheathed \a [W] into [T.his] [src]!</span>", "You sheathe \the [W] into \the [src].")
 		user.drop_from_inventory(W)
 		W.loc = src
 		src.concealed_blade = W
@@ -397,27 +399,6 @@
 	display_contents_with_number = 1
 	max_w_class = ITEMSIZE_NORMAL
 	max_storage_space = 100
-	var/works_from_distance = 0
-
-/obj/item/weapon/storage/part_replacer/afterattack(obj/machinery/T as obj, mob/living/carbon/human/user as mob, flag, params)
-	if(flag)
-		return
-	else if(works_from_distance)
-		if(istype(T))
-			if(T.component_parts)
-				T.default_part_replacement(user, src)
-				user.Beam(T,icon_state="rped_upgrade",icon='icons/effects/effects.dmi',time=5)
-	return
-
-/obj/item/weapon/storage/part_replacer/bluespace
-	name = "bluespace rapid part exchange device"
-	desc = "A version of the RPED that allows for replacement of parts and scanning from a distance, along with higher capacity for parts."
-	icon_state = "BS_RPED"
-	w_class = ITEMSIZE_NORMAL
-	storage_slots = 400
-	max_w_class = ITEMSIZE_NORMAL
-	max_storage_space = 300
-	works_from_distance = 1
 
 /obj/item/weapon/stock_parts
 	name = "stock part"
@@ -499,6 +480,7 @@
 /obj/item/weapon/stock_parts/capacitor/adv
 	name = "advanced capacitor"
 	desc = "An advanced capacitor used in the construction of a variety of devices."
+	icon_state = "capacitor_adv"
 	origin_tech = list(TECH_POWER = 3)
 	rating = 2
 	matter = list(DEFAULT_WALL_MATERIAL = 50,"glass" = 50)
@@ -506,7 +488,7 @@
 /obj/item/weapon/stock_parts/scanning_module/adv
 	name = "advanced scanning module"
 	desc = "A compact, high resolution scanning module used in the construction of certain devices."
-	icon_state = "scan_module"
+	icon_state = "scan_module_adv"
 	origin_tech = list(TECH_MAGNET = 3)
 	rating = 2
 	matter = list(DEFAULT_WALL_MATERIAL = 50,"glass" = 20)
@@ -540,6 +522,7 @@
 /obj/item/weapon/stock_parts/capacitor/super
 	name = "super capacitor"
 	desc = "A super-high capacity capacitor used in the construction of a variety of devices."
+	icon_state = "capacitor_super"
 	origin_tech = list(TECH_POWER = 5, TECH_MATERIAL = 4)
 	rating = 3
 	matter = list(DEFAULT_WALL_MATERIAL = 50,"glass" = 50)
@@ -547,6 +530,7 @@
 /obj/item/weapon/stock_parts/scanning_module/phasic
 	name = "phasic scanning module"
 	desc = "A compact, high resolution phasic scanning module used in the construction of certain devices."
+	icon_state = "scan_module_phasic"
 	origin_tech = list(TECH_MAGNET = 5)
 	rating = 3
 	matter = list(DEFAULT_WALL_MATERIAL = 50,"glass" = 20)

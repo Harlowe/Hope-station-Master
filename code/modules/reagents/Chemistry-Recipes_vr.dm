@@ -47,6 +47,30 @@
 	s.start()
 	holder.clear_reagents()
 
+/datum/chemical_reaction/xenolazarus
+	name = "Discount Lazarus"
+	id = "discountlazarus"
+	result = null
+	required_reagents = list("monstertamer" = 5, "clonexadone" = 5)
+
+/datum/chemical_reaction/xenolazarus/on_reaction(var/datum/reagents/holder, var/created_volume) //literally all this does is mash the regenerate button
+	if(ishuman(holder.my_atom))
+		var/mob/living/carbon/human/H = holder.my_atom
+		if(H.stat == DEAD && (/mob/living/carbon/human/proc/reconstitute_form in H.verbs)) //no magical regen for non-regenners, and can't force the reaction on live ones
+			if(H.hasnutriment()) // make sure it actually has the conditions to revive
+				if(!H.reviving) // if it's not reviving, start doing so
+					H.visible_message("<span class='info'>[H] shudders briefly, then relaxes, faint movements stirring within.</span>")
+					H.chimera_regenerate()
+				else if (/mob/living/carbon/human/proc/hatch in H.verbs)// already reviving, check if they're ready to hatch
+					H.chimera_hatch()
+					H.visible_message("<span class='danger'><p><font size=4>[H] violently convulses and then bursts open, revealing a new, intact copy in the pool of viscera.</font></p></span>") // Hope you were wearing waterproofs, doc...
+					H.adjustBrainLoss(10) // they're reviving from dead, so take 10 brainloss
+				else //they're already reviving but haven't hatched. Give a little message to tell them to wait.
+					H.visible_message("<span class='info'>[H] stirs faintly, but doesn't appear to be ready to wake up yet.</span>")
+			else
+				H.visible_message("<span class='info'>[H] twitches for a moment, but remains still.</span>") // no nutriment
+
+
 ///////////////////////////////////////////////////////////////////////////////////
 /// Vore Drugs
 
@@ -89,13 +113,20 @@
 	result = "grubshake"
 	required_reagents = list("shockchem" = 5, "water" = 25)
 	result_amount = 30
-	
+
 /datum/chemical_reaction/drinks/deathbell
 	name = "Deathbell"
 	id = "deathbell"
 	result = "deathbell"
 	required_reagents = list("antifreeze" = 1, "gargleblaster" = 1, "syndicatebomb" =1)
 	result_amount = 3
+
+/datum/chemical_reaction/drinks/monstertamer
+	name = "Monster Tamer"
+	id = "monstertamer"
+	result = "monstertamer"
+	required_reagents = list("whiskey" = 1, "protein" = 1)
+	result_amount = 2
 
 ///////////////////////////////
 //SLIME CORES BELOW HERE///////
@@ -107,7 +138,7 @@
 	name = "Slime Bork"
 	id = "m_tele2"
 	result = null
-	required_reagents = list("phoron" = 10, "slimejelly" = 10, "nutriment" = 10)
+	required_reagents = list("phoron" = 10, "slimejelly" = 5, "nutriment" = 20)
 	result_amount = 1
 	on_reaction(var/datum/reagents/holder)
 
@@ -289,7 +320,8 @@
 		var/mob_path = /mob/living/simple_animal
 		var/blocked = list(
 			/mob/living/simple_animal/hostile/mimic,
-			/mob/living/simple_animal/hostile/alien/queen
+			/mob/living/simple_animal/hostile/alien/queen,
+			/mob/living/simple_animal/shadekin
 			)//exclusion list for things you don't want the reaction to create.
 		var/list/voremobs = typesof(mob_path) - mob_path - blocked // list of possible hostile mobs
 

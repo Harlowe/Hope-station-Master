@@ -12,22 +12,16 @@
 		if(H.species.trashcan == 1)
 			playsound(H.loc,'sound/items/eatfood.ogg', rand(10,50), 1)
 			user.drop_item()
-			var/belly = H.vore_selected
-			var/datum/belly/selected = H.vore_organs[belly]
-			src.forceMove(H)
-			selected.internal_contents += src
+			forceMove(H.vore_selected)
 			to_chat(H, "<span class='notice'>You can taste the flavor of garbage. Wait what?</span>")
 			return
 
 	if(isrobot(M))
 		var/mob/living/silicon/robot/R = M
-		if(R.module.type == /obj/item/weapon/robot_module/scrubpup) // You can now feed the trash borg yay.
+		if(R.module.type == /obj/item/weapon/robot_module/robot/scrubpup) // You can now feed the trash borg yay.
 			playsound(R.loc,'sound/items/eatfood.ogg', rand(10,50), 1)
 			user.drop_item()
-			var/belly = R.vore_selected
-			var/datum/belly/selected = R.vore_organs[belly]
-			src.forceMove(R)
-			selected.internal_contents += src // Too many hoops and obstacles to stick it into the sleeper module.
+			forceMove(R.vore_selected)
 			R.visible_message("<span class='warning'>[user] feeds [R] with [src]!</span>")
 			return
 	..()

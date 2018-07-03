@@ -28,6 +28,14 @@
 		/obj/item/clothing/under/thing4)
 */
 
+// BeyondMyLife:Cassandra Selones Spawn Kit
+/obj/item/weapon/storage/box/fluff/cassandra
+	name = "Cassandra Selone's Spawn Kit"
+	desc = "A spawn Kit, holding Cassandra Selone's Item's"
+	has_items = list(
+		/obj/item/clothing/gloves/fluff/kilano/purple,
+		/obj/item/clothing/under/fluff/kilanosuit/purple,
+		/obj/item/clothing/shoes/boots/fluff/kilano/purple)
 
 // bwoincognito:Tasald Corlethian
 /obj/item/weapon/storage/box/fluff/tasald
@@ -91,11 +99,11 @@
 		new /obj/item/clothing/accessory/holster/hip(src)
 		new /obj/item/clothing/suit/storage/fluff/modernfedcoat(src)
 		new /obj/item/clothing/head/caphat/formal/fedcover(src)
-		new /obj/item/weapon/card/id/centcom/fluff/joanbadge(src)
-		new /obj/item/weapon/gun/energy/gun/fluff/dominator(src)
+		new /obj/item/weapon/card/id/centcom/station/fluff/joanbadge(src)
+//		new /obj/item/weapon/gun/energy/gun/fluff/dominator(src)
 		new /obj/item/clothing/suit/armor/det_suit(src)
-		new /obj/item/clothing/accessory/permit/gun/fluff/joanrisu(src)
-		new /obj/item/weapon/sword/fluff/joanaria(src)
+//		new /obj/item/clothing/accessory/permit/gun/fluff/joanrisu(src)
+//		new /obj/item/weapon/sword/fluff/joanaria(src)
 		new /obj/item/weapon/flame/lighter/zippo/fluff/joan(src)
 		new /obj/item/clothing/under/rank/internalaffairs/fluff/joan(src)
 		new /obj/item/clothing/head/helmet/space/fluff/joan(src)
@@ -113,13 +121,10 @@
 		..()
 		new /obj/item/clothing/accessory/holster/hip(src)
 		new /obj/item/clothing/suit/storage/fluff/fedcoat(src)
-		new /obj/item/weapon/gun/energy/gun/fluff/dominator(src)
+//		new /obj/item/weapon/gun/energy/gun/fluff/dominator(src)
 		new /obj/item/clothing/suit/armor/det_suit(src)
 		new /obj/item/clothing/accessory/storage/black_vest(src)
-		new /obj/item/weapon/material/hatchet/tacknife/combatknife/fluff/katarina(src)
-		new /obj/item/weapon/material/hatchet/tacknife/combatknife/fluff/katarina(src)
-		new /obj/item/weapon/material/hatchet/tacknife/combatknife/fluff/katarina(src)
-		new /obj/item/weapon/material/hatchet/tacknife/combatknife/fluff/katarina(src)
+		new /obj/item/weapon/material/knife/tacknife/combatknife/fluff/katarina(src)
 		new /obj/item/clothing/under/rank/internalaffairs/fluff/joan(src)
 
 //drakefrostpaw:Drake Frostpaw
@@ -164,45 +169,31 @@
 	can_hold = list(/obj/item/clothing/under/swimsuit/)
 	has_items = list(/obj/item/clothing/under/swimsuit/fluff/penelope)
 
-//Arokha:Aronai Kadigan
-/obj/item/weapon/storage/backpack/satchel/gen/fluff/aronai
-	name = "blue medical satchel"
-	desc = "A medical satchel done up in blue and white."
-
-	New()
-		..() //Might look like a lot... but all small items.
-		//Centcom stuff and permit
-		new /obj/item/weapon/card/id/centcom/fluff/aronai(src)
-		new /obj/item/clothing/accessory/permit/gun/fluff/aronai_kadigan(src)
-		//Gun and holster
-		new /obj/item/weapon/gun/projectile/nsfw(src)
-		new /obj/item/ammo_magazine/nsfw_mag(src)
-		new /obj/item/ammo_casing/nsfw_batt/stun(src)
-		new /obj/item/ammo_casing/nsfw_batt/stun(src)
-		new /obj/item/ammo_casing/nsfw_batt/net(src)
-		new /obj/item/clothing/accessory/holster(src)
-
-//Aerowing:Sebastian Aji
+// Aerowing:Sebastian Aji
 /obj/item/weapon/storage/box/fluff/sebastian_aji
 	name = "Sebastian's Lumoco Arms P3 Box"
 	has_items = list(
 		/obj/item/weapon/gun/projectile/pistol,
-		/obj/item/ammo_magazine/m9mm/flash,
-		/obj/item/ammo_magazine/m9mm/flash,
+		/obj/item/ammo_magazine/m9mm/compact/flash,
+		/obj/item/ammo_magazine/m9mm/compact/flash,
 		/obj/item/clothing/accessory/permit/gun/fluff/sebastian_aji)
 
+/*
 /obj/item/weapon/storage/box/fluff/briana_moore
 	name = "Briana's Derringer Box"
 	has_items = list(
 		/obj/item/weapon/gun/projectile/derringer/fluff/briana,
 		/obj/item/clothing/accessory/permit/gun/fluff/briana_moore)
+*/
 
+/*
 //SilencedMP5A5:Serdykov Antoz
 /obj/item/weapon/storage/box/fluff/serdykov_antoz
 	name = "Serdy's Weapon Box"
 	has_items = list(
 		/obj/item/clothing/accessory/permit/gun/fluff/silencedmp5a5,
 		/obj/item/weapon/gun/projectile/colt/fluff/serdy)
+*/
 
 //BeyondMyLife: Ne'tra Ky'ram //Made a box because they have so many items that it'd spam the debug log.
 /obj/item/weapon/storage/box/fluff/kilano
@@ -227,6 +218,13 @@
 		/obj/item/clothing/gloves/fluff/morsleeves,
 		/obj/item/clothing/under/fluff/morunder)
 
+// Mewchild: Phi Vietsi
+/obj/item/weapon/storage/box/fluff/vietsi
+	name = "Phi's Personal Items"
+	desc = "A small box containing Phi's small things"
+	has_items = list(
+		/obj/item/clothing/accessory/medal/bronze_heart,
+		/obj/item/clothing/gloves/ring/seal/signet/fluff/vietsi)
 
 /*
 Swimsuits, for general use, to avoid arriving to work with your swimsuit.

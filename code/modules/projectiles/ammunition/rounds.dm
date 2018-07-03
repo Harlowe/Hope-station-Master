@@ -59,6 +59,12 @@
 	caliber = ".44"
 	projectile_type = /obj/item/projectile/bullet/pistol/strong
 
+/obj/item/ammo_casing/a44r
+	icon_state = "r-casing"
+	desc = "A .44 rubber bullet casing."
+	caliber = ".44"
+	projectile_type = /obj/item/projectile/bullet/pistol/rubber/strong
+
 /*
  * .75 (aka Gyrojet Rockets, aka admin abuse)
  */
@@ -258,6 +264,10 @@
 	desc = "A 7.62mm hollow-point bullet casing."
 	projectile_type = /obj/item/projectile/bullet/rifle/a762/hollow
 
+/obj/item/ammo_casing/a762/hunter
+	desc = "A 7.62mm hunting bullet casing."
+	projectile_type = /obj/item/projectile/bullet/rifle/a762/hunter
+
 /*
  * 14.5mm (anti-materiel rifle round)
  */
@@ -297,6 +307,10 @@
 /obj/item/ammo_casing/a545/hp
 	desc = "A 5.45mm hollow-point bullet casing."
 	projectile_type = /obj/item/projectile/bullet/rifle/a545/hollow
+
+/obj/item/ammo_casing/a545/hunter
+	desc = "A 5.45mm hunting bullet casing."
+	projectile_type = /obj/item/projectile/bullet/rifle/a545/hunter
 
 /*
  * Misc

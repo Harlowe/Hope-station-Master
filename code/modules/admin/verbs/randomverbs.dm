@@ -43,6 +43,40 @@
 		message_admins("<font color='blue'>[key_name_admin(usr)] sent [key_name_admin(M)] to the prison station.</font>", 1)
 		feedback_add_details("admin_verb","PRISON") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
+//Allows staff to determine who the newer players are.
+/client/proc/cmd_check_new_players()
+	set category = "Admin"
+	set name = "Check new Players"
+	if(!holder)
+		src << "Only staff members may use this command."
+
+	var/age = alert(src, "Age check", "Show accounts yonger then _____ days","7", "30" , "All")
+
+	if(age == "All")
+		age = 9999999
+	else
+		age = text2num(age)
+
+	var/missing_ages = 0
+	var/msg = ""
+
+	var/highlight_special_characters = 1
+
+	for(var/client/C in clients)
+		if(C.player_age == "Requires database")
+			missing_ages = 1
+			continue
+		if(C.player_age < age)
+			msg += "[key_name(C, 1, 1, highlight_special_characters)]: account is [C.player_age] days old<br>"
+
+	if(missing_ages)
+		src << "Some accounts did not have proper ages set in their clients.  This function requires database to be present."
+
+	if(msg != "")
+		src << browse(msg, "window=Player_age_check")
+	else
+		src << "No matches for that age range found."
+
 /client/proc/cmd_admin_subtle_message(mob/M as mob in mob_list)
 	set category = "Special Verbs"
 	set name = "Subtle Message"
@@ -185,7 +219,7 @@ proc/cmd_admin_mute(mob/M as mob, mute_type, automute = 0)
 
 	var/show_log = alert(src, "Show ion message?", "Message", "Yes", "No")
 	if(show_log == "Yes")
-		command_announcement.Announce("Ion storm detected near the station. Please check all AI-controlled equipment for errors.", "Anomaly Alert", new_sound = 'sound/AI/ionstorm.ogg')
+		command_announcement.Announce("Ion storm detected near \the [station_name()]. Please check all AI-controlled equipment for errors.", "Anomaly Alert", new_sound = 'sound/AI/ionstorm.ogg')
 
 	IonStorm(0)
 	feedback_add_details("admin_verb","ION") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
@@ -358,8 +392,8 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		var/samejob = alert(src,"Found [picked_client.prefs.real_name] in data core. They were [record_found.fields["real_rank"]] this round. Assign same job? They will not be re-added to the manifest/records, either way.","Previously spawned","Yes","Assistant","No")
 		if(samejob == "Yes")
 			charjob = record_found.fields["real_rank"]
-		else if(samejob == "Assistant")
-			charjob = "Assistant"
+		else if(samejob == USELESS_JOB) //VOREStation Edit - Visitor not Assistant
+			charjob = USELESS_JOB //VOREStation Edit - Visitor not Assistant
 	else
 		records = alert(src,"No data core entry detected. Would you like add them to the manifest, and sec/med/HR records?","Records","Yes","No","Cancel")
 		if(records == "Cancel")
@@ -391,6 +425,10 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	//For logging later
 	var/admin = key_name_admin(src)
 	var/player_key = picked_client.key
+	//VOREStation Add - Needed for persistence
+	var/picked_ckey = picked_client.ckey
+	var/picked_slot = picked_client.prefs.default_slot
+	//VOREStation Add End
 
 	var/mob/living/carbon/human/new_character
 	var/spawnloc
@@ -437,6 +475,12 @@ Traitors and the like can also be revived with the previous role mostly intact.
 				antag_data.add_antagonist(new_character.mind)
 				antag_data.place_mob(new_character)
 
+	//VOREStation Add - Required for persistence
+	if(new_character.mind)
+		new_character.mind.loaded_from_ckey = picked_ckey
+		new_character.mind.loaded_from_slot = picked_slot
+	//VOREStation Add End
+
 	//If desired, apply equipment.
 	if(equipment)
 		if(charjob)
@@ -448,7 +492,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		data_core.manifest_inject(new_character)
 
 	//A redraw for good measure
-	new_character.update_icons()
+	new_character.update_icons_all()
 
 	//If we're announcing their arrival
 	if(announce)
@@ -488,7 +532,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 	var/show_log = alert(src, "Show ion message?", "Message", "Yes", "No")
 	if(show_log == "Yes")
-		command_announcement.Announce("Ion storm detected near the station. Please check all AI-controlled equipment for errors.", "Anomaly Alert", new_sound = 'sound/AI/ionstorm.ogg')
+		command_announcement.Announce("Ion storm detected near the [station_name()]. Please check all AI-controlled equipment for errors.", "Anomaly Alert", new_sound = 'sound/AI/ionstorm.ogg')
 	feedback_add_details("admin_verb","IONC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_admin_rejuvenate(mob/living/M as mob in mob_list)
@@ -670,7 +714,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	switch(alert("How would you like to ban someone today?", "Manual Ban", "Key List", "Enter Manually", "Cancel"))
 		if("Key List")
 			var/list/keys = list()
-			for(var/mob/M in world)
+			for(var/mob/M in player_list)
 				keys += M.client
 			var/selection = input("Please, select a player!", "Admin Jumping", null, null) as null|anything in keys
 			if(!selection)
@@ -724,6 +768,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 /client/proc/cmd_admin_check_contents(mob/living/M as mob in mob_list)
 	set category = "Special Verbs"
 	set name = "Check Contents"
+	set popup_menu = FALSE //VOREStation Edit - Declutter.
 
 	var/list/L = M.get_contents()
 	for(var/t in L)
@@ -901,3 +946,63 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		usr << "Random events disabled"
 		message_admins("Admin [key_name_admin(usr)] has disabled random events.", 1)
 	feedback_add_details("admin_verb","TRE") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/client/proc/despawn_player(var/mob/M in living_mob_list)
+	set name = "Cryo Player"
+	set category = "Admin"
+	set desc = "Removes a player from the round as if they'd cryo'd."
+	set popup_menu = FALSE
+
+	if(!check_rights(R_ADMIN))
+		return
+
+	if(!M)
+		return
+
+	var/confirm = alert("Are you sure you want to cryo [M]?","Confirmation","No","Yes")
+	if(confirm == "No")
+		return
+
+	var/list/human_cryopods = list()
+	var/list/robot_cryopods = list()
+
+	for(var/obj/machinery/cryopod/CP in machines)
+		if(!CP.control_computer)
+			continue //Broken pod w/o computer, move on.
+
+		var/listname = "[CP.name] ([CP.x],[CP.y],[CP.z])"
+		if(istype(CP,/obj/machinery/cryopod/robot))
+			robot_cryopods[listname] = CP
+		else
+			human_cryopods[listname] = CP
+
+	//Gotta log this up here before they get ghostized and lose their key or anything.
+	log_and_message_admins("[key_name(src)] admin cryo'd [key_name(M)].")
+	feedback_add_details("admin_verb","ACRYO") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+	if(ishuman(M))
+		var/obj/machinery/cryopod/CP = human_cryopods[input(usr,"Select a cryopod to use","Cryopod Choice") as null|anything in human_cryopods]
+		if(!CP)
+			return
+		M.ghostize()
+		CP.despawn_occupant(M)
+		return
+
+	else if(issilicon(M))
+		if(isAI(M))
+			var/mob/living/silicon/ai/ai = M
+			empty_playable_ai_cores += new /obj/structure/AIcore/deactivated(ai.loc)
+			global_announcer.autosay("[ai] has been moved to intelligence storage.", "Artificial Intelligence Oversight")
+			ai.clear_client()
+			return
+		else
+			var/obj/machinery/cryopod/robot/CP = robot_cryopods[input(usr,"Select a cryopod to use","Cryopod Choice") as null|anything in robot_cryopods]
+			if(!CP)
+				return
+			M.ghostize()
+			CP.despawn_occupant(M)
+			return
+
+	else if(isliving(M))
+		M.ghostize()
+		qdel(M) //Bye

@@ -293,7 +293,7 @@
 	region = ACCESS_REGION_SUPPLY
 
 // /var/const/free_access_id = 51
-// /var/const/free_access_id = 52
+// /var/const/free_access_id= 52
 
 /var/const/access_heads_vault = 53
 /datum/access/heads_vault
@@ -461,4 +461,10 @@
 /var/const/access_trader = 160//General Beruang Trader Access
 /datum/access/trader
 	id = access_trader
+	access_type = ACCESS_TYPE_PRIVATE
+
+/var/const/access_alien = 300 // For things like crashed ships.
+/datum/access/alien
+	id = access_alien
+	desc = "#%_^&*@!"
 	access_type = ACCESS_TYPE_PRIVATE

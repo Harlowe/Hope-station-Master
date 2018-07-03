@@ -43,7 +43,7 @@
 			var/obj/item/organ/external/E = get_organ(organ_name)
 			if(!E || E.is_stump())
 				tally += 4
-			else if(E.splinted)
+			else if(E.splinted && E.splinted.loc != E)
 				tally += 0.5
 			else if(E.status & ORGAN_BROKEN)
 				tally += 1.5
@@ -55,7 +55,7 @@
 			var/obj/item/organ/external/E = get_organ(organ_name)
 			if(!E || E.is_stump())
 				tally += 4
-			else if(E.splinted)
+			else if(E.splinted && E.splinted.loc != E)
 				tally += 0.5
 			else if(E.status & ORGAN_BROKEN)
 				tally += 1.5
@@ -114,6 +114,11 @@
 	item_tally *= species.item_slowdown_mod
 
 	tally += item_tally
+
+	if(CE_SLOWDOWN in chem_effects)
+		if (tally >= 0 )
+			tally = (tally + tally/4) //Add a quarter of penalties on top.
+		tally += 1
 
 	if(CE_SPEEDBOOST in chem_effects)
 		if (tally >= 0)	// cut any penalties in half
@@ -199,7 +204,7 @@
 		volume *= 0.5
 	else if(shoes)
 		var/obj/item/clothing/shoes/feet = shoes
-		if(feet)
+		if(istype(feet))
 			volume *= feet.step_volume_mod
 
 	if(!has_organ(BP_L_FOOT) && !has_organ(BP_R_FOOT))

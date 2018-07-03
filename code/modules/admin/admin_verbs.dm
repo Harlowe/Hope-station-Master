@@ -6,11 +6,13 @@ var/list/admin_verbs_default = list(
 	/client/proc/hide_verbs,			//hides all our adminverbs,
 	/client/proc/hide_most_verbs,		//hides all our hideable adminverbs,
 	/client/proc/debug_variables,		//allows us to -see- the variables of any instance in the game. +VAREDIT needed to modify,
+	/client/proc/cmd_check_new_players,	//allows us to see every new player
 //	/client/proc/check_antagonists,		//shows all antags,
 //	/client/proc/cmd_mod_say,
 //	/client/proc/deadchat				//toggles deadchat on/off,
 //	/client/proc/toggle_ahelp_sound,
 	)
+
 var/list/admin_verbs_admin = list(
 	/client/proc/player_panel_new, //shows an interface for all players, with links to various panels,
 	/datum/admins/proc/set_tcrystals,
@@ -24,6 +26,7 @@ var/list/admin_verbs_admin = list(
 	/datum/admins/proc/toggleguests,	//toggles whether guests can join the current game,
 	/datum/admins/proc/announce,		//priority announce something to all clients.,
 	/datum/admins/proc/intercom,		//send a fake intercom message, like an arrivals announcement,
+	/datum/admins/proc/intercom_convo,	//send a fake intercom conversation, like an ATC exchange,
 	/client/proc/colorooc,				//allows us to set a custom colour for everythign we say in ooc,
 	/client/proc/admin_ghost,			//allows us to ghost/reenter body at will,
 	/client/proc/toggle_view_range,		//changes how far we can see,
@@ -100,17 +103,21 @@ var/list/admin_verbs_admin = list(
 	/datum/admins/proc/paralyze_mob,
 	/client/proc/fixatmos,
 	/datum/admins/proc/quick_nif, //VOREStation Add,
-	/datum/admins/proc/sendFax
-)
+	/datum/admins/proc/sendFax,
+	/client/proc/despawn_player
+	)
+
 var/list/admin_verbs_ban = list(
 	/client/proc/unban_panel,
 	/client/proc/jobbans
 	)
+
 var/list/admin_verbs_sounds = list(
 	/client/proc/play_local_sound,
 	/client/proc/play_sound,
 	/client/proc/play_server_sound
 	)
+
 var/list/admin_verbs_fun = list(
 	/client/proc/object_talk,
 	/datum/admins/proc/cmd_admin_dress,
@@ -127,7 +134,9 @@ var/list/admin_verbs_fun = list(
 	/client/proc/editappear,
 	/client/proc/roll_dices,
 	/datum/admins/proc/call_supply_drop,
-	/datum/admins/proc/call_drop_pod
+	/datum/admins/proc/call_drop_pod,
+	/client/proc/smite_vr, //VOREStation Add,
+	/client/proc/smite
 	)
 
 var/list/admin_verbs_spawn = list(
@@ -143,6 +152,7 @@ var/list/admin_verbs_spawn = list(
 	/client/proc/map_template_upload,
 	/client/proc/map_template_load_on_new_z
 	)
+
 var/list/admin_verbs_server = list(
 	/datum/admins/proc/capture_map,
 	/client/proc/Set_Holiday,
@@ -168,8 +178,10 @@ var/list/admin_verbs_server = list(
 	/client/proc/nanomapgen_DumpImage,
 	/client/proc/modify_server_news,
 	/client/proc/recipe_dump,
-	/client/proc/panicbunker
+	/client/proc/panicbunker,
+	/client/proc/paranoia_logging
 	)
+
 var/list/admin_verbs_debug = list(
 	/client/proc/getruntimelog,                     //allows us to access runtime logs to somebody,
 	/client/proc/cmd_admin_list_open_jobs,
@@ -185,6 +197,9 @@ var/list/admin_verbs_debug = list(
 	/client/proc/cmd_admin_delete,
 	/client/proc/cmd_debug_del_all,
 	/client/proc/cmd_debug_tog_aliens,
+	/client/proc/cmd_display_del_log,
+	/client/proc/cmd_display_init_log,
+	/client/proc/cmd_display_overlay_log,
 	/client/proc/air_report,
 	/client/proc/reload_admins,
 	/client/proc/reload_eventMs,
@@ -213,7 +228,8 @@ var/list/admin_verbs_debug = list(
 	/client/proc/show_gm_status,
 	/datum/admins/proc/change_weather,
 	/datum/admins/proc/change_time,
-	/client/proc/admin_give_modifier
+	/client/proc/admin_give_modifier,
+	/client/proc/simple_DPS
 	)
 
 var/list/admin_verbs_paranoid_debug = list(
@@ -296,10 +312,12 @@ var/list/admin_verbs_hideable = list(
 	/client/proc/kill_airgroup,
 	/client/proc/debug_controller,
 	/client/proc/startSinglo,
+	/client/proc/simple_DPS,
 	/client/proc/cmd_debug_mob_lists,
 	/client/proc/cmd_debug_using_map,
 	/client/proc/cmd_debug_del_all,
 	/client/proc/cmd_debug_tog_aliens,
+	/client/proc/cmd_display_del_log,
 	/client/proc/air_report,
 	/client/proc/enable_debug_verbs,
 	/client/proc/roll_dices,
@@ -383,6 +401,7 @@ var/list/admin_verbs_event_manager = list(
 
 /client/proc/add_admin_verbs()
 	if(holder)
+		control_freak = CONTROL_FREAK_SKIN | CONTROL_FREAK_MACROS
 		verbs += admin_verbs_default
 		if(holder.rights & R_BUILDMODE)		verbs += /client/proc/togglebuildmodeself
 		if(holder.rights & R_ADMIN)			verbs += admin_verbs_admin
@@ -480,7 +499,6 @@ var/list/admin_verbs_event_manager = list(
 			if(!body.key)
 				body.key = "@[key]"	//Haaaaaaaack. But the people have spoken. If it breaks; blame adminbus
 		feedback_add_details("admin_verb","O") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
 
 /client/proc/invisimin()
 	set name = "Invisimin"
@@ -642,10 +660,12 @@ var/list/admin_verbs_event_manager = list(
 	set desc = "Cause an explosion of varying strength at your location."
 
 	var/turf/epicenter = mob.loc
-	var/list/choices = list("Small Bomb", "Medium Bomb", "Big Bomb", "Custom Bomb")
+	var/list/choices = list("Small Bomb", "Medium Bomb", "Big Bomb", "Custom Bomb", "Cancel")
 	var/choice = input("What size explosion would you like to produce?") in choices
 	switch(choice)
 		if(null)
+			return 0
+		if("Cancel")
 			return 0
 		if("Small Bomb")
 			explosion(epicenter, 1, 2, 3, 3)
@@ -697,6 +717,7 @@ var/list/admin_verbs_event_manager = list(
 	set category = "Debug"
 	set name = "Give Modifier"
 	set desc = "Makes a mob weaker or stronger by adding a specific modifier to them."
+	set popup_menu = FALSE //VOREStation Edit - Declutter.
 
 	if(!L)
 		to_chat(usr, "<span class='warning'>Looks like you didn't select a mob.</span>")
@@ -753,11 +774,11 @@ var/list/admin_verbs_event_manager = list(
 	set category = "Debug"
 	set name = "Kill Air"
 	set desc = "Toggle Air Processing"
-	if(air_processing_killed)
-		air_processing_killed = 0
+	if(!SSair.can_fire)
+		SSair.can_fire = TRUE
 		usr << "<b>Enabled air processing.</b>"
 	else
-		air_processing_killed = 1
+		SSair.can_fire = FALSE
 		usr << "<b>Disabled air processing.</b>"
 	feedback_add_details("admin_verb","KA") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	log_admin("[key_name(usr)] used 'kill air'.")
@@ -861,13 +882,13 @@ var/list/admin_verbs_event_manager = list(
 	if(!H.client)
 		usr << "Only mobs with clients can alter their own appearance."
 		return
-
+	var/datum/gender/T = gender_datums[H.get_visible_gender()]
 	switch(alert("Do you wish for [H] to be allowed to select non-whitelisted races?","Alter Mob Appearance","Yes","No","Cancel"))
 		if("Yes")
-			log_and_message_admins("has allowed [H] to change \his appearance, without whitelisting of races.")
+			log_and_message_admins("has allowed [H] to change [T.his] appearance, without whitelisting of races.")
 			H.change_appearance(APPEARANCE_ALL, H.loc, check_species_whitelist = 0)
 		if("No")
-			log_and_message_admins("has allowed [H] to change \his appearance, with whitelisting of races.")
+			log_and_message_admins("has allowed [H] to change [T.his] appearance, with whitelisting of races.")
 			H.change_appearance(APPEARANCE_ALL, H.loc, check_species_whitelist = 1)
 	feedback_add_details("admin_verb","CMAS") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
@@ -957,8 +978,8 @@ var/list/admin_verbs_event_manager = list(
 		else
 			M.gender = NEUTER
 
-	M.update_hair()
-	M.update_body()
+	M.update_hair(FALSE)
+	M.update_icons_body()
 	M.check_dna(M)
 
 /client/proc/playernotes()
@@ -1017,6 +1038,9 @@ var/list/admin_verbs_event_manager = list(
 	set category = "Fun"
 	set name = "Man Up"
 	set desc = "Tells mob to man up and deal with it."
+	set popup_menu = FALSE //VOREStation Edit - Declutter.
+
+	if(alert("Are you sure you want to tell them to man up?","Confirmation","Deal with it","No")=="No") return
 
 	T << "<span class='notice'><b><font size=3>Man up and deal with it.</font></b></span>"
 	T << "<span class='notice'>Move on.</span>"
@@ -1028,6 +1052,8 @@ var/list/admin_verbs_event_manager = list(
 	set category = "Fun"
 	set name = "Man Up Global"
 	set desc = "Tells everyone to man up and deal with it."
+
+	if(alert("Are you sure you want to tell the whole server up?","Confirmation","Deal with it","No")=="No") return
 
 	for (var/mob/T as mob in mob_list)
 		T << "<br><center><span class='notice'><b><font size=4>Man up.<br> Deal with it.</font></b><br>Move on.</span></center><br>"

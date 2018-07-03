@@ -1,7 +1,6 @@
 #define AI_CHECK_WIRELESS 1
 #define AI_CHECK_RADIO 2
 
-var/list/ai_list = list()
 var/list/ai_verbs_default = list(
 	// /mob/living/silicon/ai/proc/ai_recall_shuttle,
 	/mob/living/silicon/ai/proc/ai_emergency_message,
@@ -150,13 +149,16 @@ var/list/ai_verbs_default = list(
 	add_language(LANGUAGE_SOL_COMMON, 1)
 	add_language(LANGUAGE_UNATHI, 1)
 	add_language(LANGUAGE_SIIK, 1)
+	add_language(LANGUAGE_AKHANI, 1)
 	add_language(LANGUAGE_SKRELLIAN, 1)
+	add_language(LANGUAGE_SKRELLIANFAR, 0)
 	add_language(LANGUAGE_TRADEBAND, 1)
 	add_language(LANGUAGE_GUTTER, 1)
 	add_language(LANGUAGE_EAL, 1)
 	add_language(LANGUAGE_SCHECHI, 1)
 	add_language(LANGUAGE_SIGN, 1)
 	add_language(LANGUAGE_ROOTLOCAL, 1)
+	add_language(LANGUAGE_TERMINUS, 1)
 
 	if(!safety)//Only used by AIize() to successfully spawn an AI.
 		if (!B)//If there is no player/brain inside.
@@ -171,16 +173,6 @@ var/list/ai_verbs_default = list(
 
 	spawn(5)
 		new /obj/machinery/ai_powersupply(src)
-
-	hud_list[HEALTH_HUD]      = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[STATUS_HUD]      = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[LIFE_HUD] 		  = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[ID_HUD]          = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[WANTED_HUD]      = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[IMPLOYAL_HUD]    = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[IMPCHEM_HUD]     = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[IMPTRACK_HUD]    = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[SPECIALROLE_HUD] = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
 
 	ai_list += src
 	..()
@@ -271,7 +263,7 @@ var/list/ai_verbs_default = list(
 		aiPDA.name = pickedName + " (" + aiPDA.ownjob + ")"
 
 	if(aiCommunicator)
-		aiCommunicator.register_device(src)
+		aiCommunicator.register_device(src.name)
 
 /*
 	The AI Power supply is a dummy object used for powering the AI since only machinery should be using power.
@@ -403,7 +395,7 @@ var/list/ai_verbs_default = list(
 		return
 	CentCom_announce(input, usr)
 	usr << "<span class='notice'>Message transmitted.</span>"
-	log_say("[key_name(usr)] has made an IA [using_map.boss_short] announcement: [input]")
+	log_game("[key_name(usr)] has made an IA [using_map.boss_short] announcement: [input]")
 	emergency_message_cooldown = 1
 	spawn(300)
 		emergency_message_cooldown = 0
@@ -594,8 +586,8 @@ var/list/ai_verbs_default = list(
 				"female human",
 				"male unathi",
 				"female unathi",
-				"male tajara",
-				"female tajara",
+				"male tajaran",
+				"female tajaran",
 				"male tesharii",
 				"female tesharii",
 				"male skrell",
@@ -637,9 +629,9 @@ var/list/ai_verbs_default = list(
 						holo_icon = getHologramIcon(icon('icons/mob/AI.dmi',"holounam"))
 					if("female unathi")
 						holo_icon = getHologramIcon(icon('icons/mob/AI.dmi',"holounaf"))
-					if("male tajara")
+					if("male tajaran")
 						holo_icon = getHologramIcon(icon('icons/mob/AI.dmi',"holotajm"))
-					if("female tajara")
+					if("female tajaran")
 						holo_icon = getHologramIcon(icon('icons/mob/AI.dmi',"holotajf"))
 					if("male tesharii")
 						holo_icon = getHologramIcon(icon('icons/mob/AI.dmi',"holotesm"))
@@ -701,6 +693,9 @@ var/list/ai_verbs_default = list(
 		card.grab_ai(src, user)
 
 	else if(istype(W, /obj/item/weapon/wrench))
+		if(user == controlling_drone)
+			to_chat(user, "<span class='notice'>The drone's subsystems resist your efforts to tamper with your bolts.</span>")
+			return
 		if(anchored)
 			playsound(src, W.usesound, 50, 1)
 			user.visible_message("<font color='blue'>\The [user] starts to unbolt \the [src] from the plating...</font>")
@@ -803,6 +798,23 @@ var/list/ai_verbs_default = list(
 	var/obj/item/weapon/rig/rig = src.get_rig()
 	if(rig)
 		rig.force_rest(src)
+
+/mob/living/silicon/ai/is_sentient()
+	// AI cores don't store what brain was used to build them so we're just gonna assume they can think to some degree.
+	// If that is ever fixed please update this proc.
+	return TRUE
+
+//Special subtype kept around for global announcements
+/mob/living/silicon/ai/announcer/initialize()
+	. = ..()
+	mob_list -= src
+	living_mob_list -= src
+	dead_mob_list -= src
+	ai_list -= src
+	silicon_mob_list -= src
+
+/mob/living/silicon/ai/announcer/Life()
+	return
 
 #undef AI_CHECK_WIRELESS
 #undef AI_CHECK_RADIO

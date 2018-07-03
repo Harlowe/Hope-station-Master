@@ -109,7 +109,6 @@
 
 	robot_modules_background = new()
 	robot_modules_background.icon_state = "block"
-	robot_modules_background.layer = 19 //Objects that appear on screen are on layer 20, UI should be just below it.
 	ident = rand(1, 999)
 	module_sprites["Basic"] = "robot"
 	icontype = "Basic"
@@ -151,15 +150,15 @@
 
 	add_robot_verbs()
 
-	hud_list[HEALTH_HUD]      = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[STATUS_HUD]      = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudhealth100")
-	hud_list[LIFE_HUD]        = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudhealth100")
-	hud_list[ID_HUD]          = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[WANTED_HUD]      = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[IMPLOYAL_HUD]    = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[IMPCHEM_HUD]     = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[IMPTRACK_HUD]    = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
-	hud_list[SPECIALROLE_HUD] = new /image/hud_overlay('icons/mob/hud.dmi', src, "hudblank")
+	hud_list[HEALTH_HUD]      = gen_hud_image('icons/mob/hud.dmi', src, "hudblank", plane = PLANE_CH_HEALTH)
+	hud_list[STATUS_HUD]      = gen_hud_image('icons/mob/hud.dmi', src, "hudhealth100", plane = PLANE_CH_STATUS)
+	hud_list[LIFE_HUD]        = gen_hud_image('icons/mob/hud.dmi', src, "hudhealth100", plane = PLANE_CH_LIFE)
+	hud_list[ID_HUD]          = gen_hud_image('icons/mob/hud.dmi', src, "hudblank", plane = PLANE_CH_ID)
+	hud_list[WANTED_HUD]      = gen_hud_image('icons/mob/hud.dmi', src, "hudblank", plane = PLANE_CH_WANTED)
+	hud_list[IMPLOYAL_HUD]    = gen_hud_image('icons/mob/hud.dmi', src, "hudblank", plane = PLANE_CH_IMPLOYAL)
+	hud_list[IMPCHEM_HUD]     = gen_hud_image('icons/mob/hud.dmi', src, "hudblank", plane = PLANE_CH_IMPCHEM)
+	hud_list[IMPTRACK_HUD]    = gen_hud_image('icons/mob/hud.dmi', src, "hudblank", plane = PLANE_CH_IMPTRACK)
+	hud_list[SPECIALROLE_HUD] = gen_hud_image('icons/mob/hud.dmi', src, "hudblank", plane = PLANE_CH_SPECIAL)
 
 /mob/living/silicon/robot/proc/init()
 	aiCamera = new/obj/item/device/camera/siliconcam/robot_camera(src)
@@ -211,7 +210,7 @@
 /mob/living/silicon/robot/proc/setup_communicator()
 	if (!communicator)
 		communicator = new/obj/item/device/communicator/integrated(src)
-	communicator.register_device(src, "[modtype] [braintype]")
+	communicator.register_device(src.name, "[modtype] [braintype]")
 
 //If there's an MMI in the robot, have it ejected when the mob goes away. --NEO
 //Improved /N
@@ -268,6 +267,7 @@
 		return
 
 	var/module_type = robot_modules[modtype]
+	transform_with_anim()	//VOREStation edit: sprite animation
 	new module_type(src)
 
 	hands.icon_state = lowertext(modtype)
@@ -360,6 +360,7 @@
 	lights_on = !lights_on
 	usr << "You [lights_on ? "enable" : "disable"] your integrated light."
 	handle_light()
+	updateicon() //VOREStation Add - Since dogborgs have sprites for this
 
 /mob/living/silicon/robot/verb/self_diagnosis_verb()
 	set category = "Robot Commands"
@@ -491,7 +492,7 @@
 			return
 		var/obj/item/weapon/weldingtool/WT = W
 		if (WT.remove_fuel(0))
-			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+			user.setClickCooldown(user.get_attack_speed(WT))
 			adjustBruteLoss(-30)
 			updatehealth()
 			add_fingerprint(user)
@@ -507,7 +508,7 @@
 			return
 		var/obj/item/stack/cable_coil/coil = W
 		if (coil.use(1))
-			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+			user.setClickCooldown(user.get_attack_speed(W))
 			adjustFireLoss(-30)
 			updatehealth()
 			for(var/mob/O in viewers(user, null))
@@ -633,7 +634,7 @@
 		if(!opened)
 			usr << "You must access the borgs internals!"
 		else if(!src.module && U.require_module)
-			usr << "The borg must choose a module before he can be upgraded!"
+			usr << "The borg must choose a module before it can be upgraded!"
 		else if(U.locked)
 			usr << "The upgrade is locked and cannot be used yet!"
 		else
@@ -712,34 +713,29 @@
 	return 0
 
 /mob/living/silicon/robot/updateicon()
-	overlays.Cut()
+	cut_overlays()
 	if(stat == CONSCIOUS)
-		overlays += "eyes-[module_sprites[icontype]]"
+		add_overlay("eyes-[module_sprites[icontype]]")
 
 	if(opened)
 		var/panelprefix = custom_sprite ? "[src.ckey]-[src.name]" : "ov"
 		if(wiresexposed)
-			overlays += "[panelprefix]-openpanel +w"
+			add_overlay("[panelprefix]-openpanel +w")
 		else if(cell)
-			overlays += "[panelprefix]-openpanel +c"
+			add_overlay("[panelprefix]-openpanel +c")
 		else
-			overlays += "[panelprefix]-openpanel -c"
+			add_overlay("[panelprefix]-openpanel -c")
 
 	if(has_active_type(/obj/item/borg/combat/shield))
 		var/obj/item/borg/combat/shield/shield = locate() in src
 		if(shield && shield.active)
-			overlays += "[module_sprites[icontype]]-shield"
+			add_overlay("[module_sprites[icontype]]-shield")
 
 	if(modtype == "Combat")
 		if(module_active && istype(module_active,/obj/item/borg/combat/mobility))
 			icon_state = "[module_sprites[icontype]]-roll"
 		else
 			icon_state = module_sprites[icontype]
-		return
-
-	if(typing)
-		typing = FALSE
-		set_typing_indicator(1)
 
 /mob/living/silicon/robot/proc/installed_modules()
 	if(weapon_lock)
@@ -812,19 +808,19 @@
 			return 1
 		if(!module_state_1)
 			module_state_1 = O
-			O.layer = 20
+			O.hud_layerise()
 			contents += O
 			if(istype(module_state_1,/obj/item/borg/sight))
 				sight_mode |= module_state_1:sight_mode
 		else if(!module_state_2)
 			module_state_2 = O
-			O.layer = 20
+			O.hud_layerise()
 			contents += O
 			if(istype(module_state_2,/obj/item/borg/sight))
 				sight_mode |= module_state_2:sight_mode
 		else if(!module_state_3)
 			module_state_3 = O
-			O.layer = 20
+			O.hud_layerise()
 			contents += O
 			if(istype(module_state_3,/obj/item/borg/sight))
 				sight_mode |= module_state_3:sight_mode
@@ -893,6 +889,18 @@
 								cleaned_human.update_inv_shoes(0)
 							cleaned_human.clean_blood(1)
 							cleaned_human << "<font color='red'>[src] cleans your face!</font>"
+
+		if((module_state_1 && istype(module_state_1, /obj/item/weapon/storage/bag/ore)) || (module_state_2 && istype(module_state_2, /obj/item/weapon/storage/bag/ore)) || (module_state_3 && istype(module_state_3, /obj/item/weapon/storage/bag/ore))) //Borgs and drones can use their mining bags ~automagically~ if they're deployed in a slot. Only mining bags, as they're optimized for mass use.
+			var/obj/item/weapon/storage/bag/ore/B = null
+			if(istype(module_state_1, /obj/item/weapon/storage/bag/ore)) //First orebag has priority, if they for some reason have multiple.
+				B = module_state_1
+			else if(istype(module_state_2, /obj/item/weapon/storage/bag/ore))
+				B = module_state_2
+			else if(istype(module_state_3, /obj/item/weapon/storage/bag/ore))
+				B = module_state_3
+			var/turf/tile = loc
+			if(isturf(tile))
+				B.gather_all(tile, src, 1) //Shhh, unless the bag fills, don't spam the borg's chat with stuff that's going on every time they move!
 		return
 
 /mob/living/silicon/robot/proc/self_destruct()
@@ -936,6 +944,11 @@
 	set category = "IC"
 	set src = usr
 
+	if(world.time <= next_click) // Hard check, before anything else, to avoid crashing
+		return
+
+	next_click = world.time + 1
+
 	var/obj/item/W = get_active_hand()
 	if (W)
 		W.attack_self(src)
@@ -954,6 +967,12 @@
 			icontype = module_sprites[1]
 	else
 		icontype = input("Select an icon! [triesleft ? "You have [triesleft] more chance\s." : "This is your last try."]", "Robot Icon", icontype, null) in module_sprites
+		if(notransform)				//VOREStation edit start: sprite animation
+			to_chat(src, "Your current transformation has not finished yet!")
+			choose_icon(icon_selection_tries, module_sprites)
+			return
+		else
+			transform_with_anim()	//VOREStation edit end: sprite animation
 	icon_state = module_sprites[icontype]
 	updateicon()
 
@@ -1067,7 +1086,8 @@
 				laws = new /datum/ai_laws/syndicate_override
 				var/time = time2text(world.realtime,"hh:mm:ss")
 				lawchanges.Add("[time] <B>:</B> [user.name]([user.key]) emagged [name]([key])")
-				set_zeroth_law("Only [user.real_name] and people \he designates as being such are operatives.")
+				var/datum/gender/TU = gender_datums[user.get_visible_gender()]
+				set_zeroth_law("Only [user.real_name] and people [TU.he] designate[TU.s] as being such are operatives.")
 				. = 1
 				spawn()
 					src << "<span class='danger'>ALERT: Foreign software detected.</span>"
@@ -1085,10 +1105,19 @@
 					src << "<span class='danger'>ERRORERRORERROR</span>"
 					src << "<b>Obey these laws:</b>"
 					laws.show_laws(src)
-					src << "<span class='danger'>ALERT: [user.real_name] is your new master. Obey your new laws and his commands.</span>"
+					src << "<span class='danger'>ALERT: [user.real_name] is your new master. Obey your new laws and [TU.his] commands.</span>"
 					updateicon()
 			else
 				user << "You fail to hack [src]'s interface."
 				src << "Hack attempt detected."
 			return 1
 		return
+
+/mob/living/silicon/robot/is_sentient()
+	return braintype != "Drone"
+
+
+/mob/living/silicon/robot/drop_item()
+	if(module_active && istype(module_active,/obj/item/weapon/gripper))
+		var/obj/item/weapon/gripper/G = module_active
+		G.drop_item_nm()

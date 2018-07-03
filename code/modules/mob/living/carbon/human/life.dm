@@ -227,7 +227,7 @@
 			if(gene.is_active(src))
 				gene.OnMobLife(src)
 
-	radiation = Clamp(radiation,0,100)
+	radiation = Clamp(radiation,0,250)
 
 	if(!radiation)
 		if(species.appearance_flags & RADIATION_GLOWS)
@@ -268,7 +268,7 @@
 					Weaken(3)
 					if(!lying)
 						emote("collapse")
-				if(prob(5) && prob(100 * RADIATION_SPEED_COEFFICIENT) && species.get_bodytype() == "Human") //apes go bald
+				if(prob(5) && prob(100 * RADIATION_SPEED_COEFFICIENT) && species.get_bodytype() == SPECIES_HUMAN) //apes go bald
 					if((h_style != "Bald" || f_style != "Shaved" ))
 						src << "<span class='warning'>Your hair falls out.</span>"
 						h_style = "Bald"
@@ -286,8 +286,12 @@
 					adjustCloneLoss(5 * RADIATION_SPEED_COEFFICIENT)
 					emote("gasp")
 
+		if (radiation > 150)
+			damage = 6
+			radiation -= 4 * RADIATION_SPEED_COEFFICIENT
+
 		if(damage)
-			damage *= isSynthetic() ? 0.5 : species.radiation_mod
+			damage *= species.radiation_mod
 			adjustToxLoss(damage * RADIATION_SPEED_COEFFICIENT)
 			updatehealth()
 			if(!isSynthetic() && organs.len)
@@ -315,14 +319,15 @@
 
 /mob/living/carbon/human/get_breath_from_internal(volume_needed=BREATH_VOLUME)
 	if(internal)
-
+		//Because rigs store their tanks out of reach of contents.Find(), a check has to be made to make
+		//sure the rig is still worn, still online, and that its air supply still exists.
 		var/obj/item/weapon/tank/rig_supply
 		if(istype(back,/obj/item/weapon/rig))
 			var/obj/item/weapon/rig/rig = back
 			if(!rig.offline && (rig.air_supply && internal == rig.air_supply))
 				rig_supply = rig.air_supply
 
-		if (!rig_supply && (!contents.Find(internal) || !((wear_mask && (wear_mask.item_flags & AIRTIGHT)) || (head && (head.item_flags & AIRTIGHT)))))
+		if ((!rig_supply && !contents.Find(internal)) || !((wear_mask && (wear_mask.item_flags & AIRTIGHT)) || (head && (head.item_flags & AIRTIGHT))))
 			internal = null
 
 		if(internal)
@@ -612,11 +617,11 @@
 		var/temp_adj = 0
 		if(loc_temp < bodytemperature)			//Place is colder than we are
 			var/thermal_protection = get_cold_protection(loc_temp) //This returns a 0 - 1 value, which corresponds to the percentage of protection based on what you're wearing and what you're exposed to.
-			if(thermal_protection < 1)
+			if(thermal_protection < 0.99)	//For some reason, < 1 returns false if the value is 1.
 				temp_adj = (1-thermal_protection) * ((loc_temp - bodytemperature) / BODYTEMP_COLD_DIVISOR)	//this will be negative
 		else if (loc_temp > bodytemperature)			//Place is hotter than we are
 			var/thermal_protection = get_heat_protection(loc_temp) //This returns a 0 - 1 value, which corresponds to the percentage of protection based on what you're wearing and what you're exposed to.
-			if(thermal_protection < 1)
+			if(thermal_protection < 0.99)	//For some reason, < 1 returns false if the value is 1.
 				temp_adj = (1-thermal_protection) * ((loc_temp - bodytemperature) / BODYTEMP_HEAT_DIVISOR)
 
 		//Use heat transfer as proportional to the gas density. However, we only care about the relative density vs standard 101 kPa/20 C air. Therefore we can use mole ratios
@@ -818,41 +823,35 @@
 
 		if(!isSynthetic())
 
-			if(touching) touching.metabolize()
-			if(ingested) ingested.metabolize()
-			if(bloodstr) bloodstr.metabolize()
+			if(touching)
+				touching.metabolize()
+			if(ingested)
+				ingested.metabolize()
+			if(bloodstr)
+				bloodstr.metabolize()
 
 			var/total_phoronloss = 0
 			for(var/obj/item/I in src)
 				if(I.contaminated || I.gurgled) //VOREStation Edit
 					if(check_belly(I)) continue //VOREStation Edit
 					if(src.species && src.species.get_bodytype() != "Vox")
-						total_phoronloss += vsc.plc.CONTAMINATION_LOSS
-			if(!(status_flags & GODMODE)) adjustToxLoss(total_phoronloss)
+						// This is hacky, I'm so sorry.
+						if(I != l_hand && I != r_hand)	//If the item isn't in your hands, you're probably wearing it. Full damage for you.
+							total_phoronloss += vsc.plc.CONTAMINATION_LOSS
+						else if(I == l_hand)	//If the item is in your hands, but you're wearing protection, you might be alright.
+							var/l_hand_blocked = 0
+							l_hand_blocked = 1-(100-getarmor(BP_L_HAND, "bio"))/100	//This should get a number between 0 and 1
+							total_phoronloss += vsc.plc.CONTAMINATION_LOSS * l_hand_blocked
+						else if(I == r_hand)	//If the item is in your hands, but you're wearing protection, you might be alright.
+							var/r_hand_blocked = 0
+							r_hand_blocked = 1-(100-getarmor(BP_R_HAND, "bio"))/100	//This should get a number between 0 and 1
+							total_phoronloss += vsc.plc.CONTAMINATION_LOSS * r_hand_blocked
+			if(total_phoronloss)
+				if(!(status_flags & GODMODE))
+					adjustToxLoss(total_phoronloss)
 
-	if(status_flags & GODMODE)	return 0	//godmode
-
-	var/obj/item/organ/internal/diona/node/light_organ = locate() in internal_organs
-
-	if(!isSynthetic())
-		if(light_organ && !light_organ.is_broken())
-			var/light_amount = 0 //how much light there is in the place, affects receiving nutrition and healing
-			if(isturf(loc)) //else, there's considered to be no light
-				var/turf/T = loc
-				light_amount = T.get_lumcount() * 10
-			nutrition += light_amount
-			traumatic_shock -= light_amount
-
-			if(species.flags & IS_PLANT)
-				if(nutrition > 450)
-					nutrition = 450
-
-				if(light_amount >= 3) //if there's enough light, heal
-					adjustBruteLoss(-(round(light_amount/2)))
-					adjustFireLoss(-(round(light_amount/2)))
-					adjustToxLoss(-(light_amount))
-					adjustOxyLoss(-(light_amount))
-					//TODO: heal wounds, heal broken limbs.
+	if(status_flags & GODMODE)
+		return 0	//godmode
 
 	if(species.light_dam)
 		var/light_amount = 0
@@ -881,13 +880,11 @@
 		if(overeatduration > 1)
 			overeatduration -= 2 //doubled the unfat rate
 
-	if(!isSynthetic() && (species.flags & IS_PLANT) && (!light_organ || light_organ.is_broken()))
-		if(nutrition < 200)
-			take_overall_damage(2,0)
-
-			//traumatic_shock is updated every tick, incrementing that is pointless - shock_stage is the counter.
-			//Not that it matters much for diona, who have NO_PAIN.
-			shock_stage++
+	if(noisy == TRUE && nutrition < 250 && prob(10)) //VOREStation edit for hunger noises.
+		var/growlsound = pick(hunger_sounds)
+		var/growlmultiplier = 100 - (nutrition / 250 * 100)
+		playsound(src, growlsound, vol = growlmultiplier, vary = 1, falloff = 0.1, ignore_walls = TRUE, preference = /datum/client_preference/digestion_noises)
+	// VOREStation Edit End
 
 	// TODO: stomach and bloodstream organ.
 	if(!isSynthetic())
@@ -955,7 +952,7 @@
 
 		if(paralysis || sleeping)
 			blinded = 1
-			stat = UNCONSCIOUS
+			set_stat(UNCONSCIOUS)
 			animate_tail_reset()
 			adjustHalLoss(-3)
 
@@ -970,7 +967,7 @@
 						emote("snore")
 		//CONSCIOUS
 		else
-			stat = CONSCIOUS
+			set_stat(CONSCIOUS)
 
 		//Periodically double-check embedded_flag
 		if(embedded_flag && !(life_tick % 10))
@@ -1058,6 +1055,11 @@
 
 	return 1
 
+/mob/living/carbon/human/proc/set_stat(var/new_stat)
+	stat = new_stat
+	if(stat)
+		update_skin(1)
+
 /mob/living/carbon/human/handle_regular_hud_updates()
 	if(hud_updateflag) // update our mob's hud overlays, AKA what others see flaoting above our head
 		handle_hud_list()
@@ -1069,7 +1071,7 @@
 
 	..()
 
-	client.screen.Remove(global_hud.blurry, global_hud.druggy, global_hud.vimpaired, global_hud.darkMask, global_hud.nvg, global_hud.thermal, global_hud.meson, global_hud.science, global_hud.whitense)
+	client.screen.Remove(global_hud.blurry, global_hud.druggy, global_hud.vimpaired, global_hud.darkMask, global_hud.nvg, global_hud.thermal, global_hud.meson, global_hud.science, global_hud.material, global_hud.whitense)
 
 	if(istype(client.eye,/obj/machinery/camera))
 		var/obj/machinery/camera/cam = client.eye
@@ -1138,7 +1140,7 @@
 
 	else
 		sight &= ~(SEE_TURFS|SEE_MOBS|SEE_OBJS)
-		see_invisible = see_in_dark>2 ? SEE_INVISIBLE_LEVEL_ONE : SEE_INVISIBLE_LIVING
+		see_invisible = see_in_dark>2 ? SEE_INVISIBLE_LEVEL_ONE : see_invisible_default
 
 		if(XRAY in mutations)
 			sight |= SEE_TURFS|SEE_MOBS|SEE_OBJS
@@ -1150,7 +1152,7 @@
 			if(R && R.word1 == cultwords["see"] && R.word2 == cultwords["hell"] && R.word3 == cultwords["join"])
 				see_invisible = SEE_INVISIBLE_CULT
 			else
-				see_invisible = SEE_INVISIBLE_LIVING
+				see_invisible = see_invisible_default
 				seer = 0
 
 		if(!seedarkness)
@@ -1161,7 +1163,7 @@
 		else
 			sight = species.get_vision_flags(src)
 			see_in_dark = species.darksight
-			see_invisible = see_in_dark>2 ? SEE_INVISIBLE_LEVEL_ONE : SEE_INVISIBLE_LIVING
+			see_invisible = see_in_dark>2 ? SEE_INVISIBLE_LEVEL_ONE : see_invisible_default
 
 		var/tmp/glasses_processed = 0
 		var/obj/item/weapon/rig/rig = back
@@ -1182,15 +1184,17 @@
 		if(!glasses_processed && (species.get_vision_flags(src) > 0))
 			sight |= species.get_vision_flags(src)
 		if(!seer && !glasses_processed && seedarkness)
-			see_invisible = SEE_INVISIBLE_LIVING
+			see_invisible = see_invisible_default
 
 		if(healths)
 			if (chem_effects[CE_PAINKILLER] > 100)
 				healths.icon_state = "health_numb"
 			else
 				// Generate a by-limb health display.
-				healths.icon_state = "blank"
-				healths.overlays = null
+				var/mutable_appearance/healths_ma = new(healths)
+				healths_ma.icon_state = "blank"
+				healths_ma.overlays = null
+				healths_ma.plane = PLANE_PLAYER_HUD
 
 				var/no_damage = 1
 				var/trauma_val = 0 // Used in calculating softcrit/hardcrit indicators.
@@ -1218,7 +1222,8 @@
 				else if(no_damage)
 					health_images += image('icons/mob/screen1_health.dmi',"fullhealth")
 
-				healths.overlays += health_images
+				healths_ma.overlays += health_images
+				healths.appearance = healths_ma
 
 		if(nutrition_icon)
 			switch(nutrition)
@@ -1355,29 +1360,13 @@
 			client.screen |= G.overlay
 		if(G.vision_flags)
 			sight |= G.vision_flags
-			if(!druggy && !seer)
-				see_invisible = SEE_INVISIBLE_MINIMUM
-		if(G.see_invisible >= 0)
-			see_invisible = G.see_invisible
 		if(istype(G,/obj/item/clothing/glasses/night) && !seer)
 			see_invisible = SEE_INVISIBLE_MINIMUM
-/* HUD shit goes here, as long as it doesn't modify sight flags */
-// The purpose of this is to stop xray and w/e from preventing you from using huds -- Love, Doohl
-		var/obj/item/clothing/glasses/hud/O = G
-		//VOREStation Add - Support for omnihud glasses
-		if(istype(G, /obj/item/clothing/glasses/omnihud))
-			var/obj/item/clothing/glasses/omnihud/S = G
-			O = S.hud
-        //VOREStation Add End
-		else if(istype(G, /obj/item/clothing/glasses/sunglasses/sechud)) //VOREStation Edit - Added else
-			var/obj/item/clothing/glasses/sunglasses/sechud/S = G
-			O = S.hud
-		else if(istype(G, /obj/item/clothing/glasses/sunglasses/medhud)) //VOREStation Edit - Added else
-			var/obj/item/clothing/glasses/sunglasses/medhud/M = G
-			O = M.hud
-		if(istype(O))
-			O.process_hud(src)
-			if(!druggy && !seer)	see_invisible = SEE_INVISIBLE_LIVING
+
+		if(G.see_invisible >= 0)
+			see_invisible = G.see_invisible
+		else if(!druggy && !seer)
+			see_invisible = see_invisible_default
 
 /mob/living/carbon/human/handle_random_events()
 	if(inStasisNow())
@@ -1385,8 +1374,14 @@
 
 	// Puke if toxloss is too high
 	if(!stat)
+		if (getToxLoss() >= 30 && isSynthetic())
+			if(!confused)
+				if(prob(5))
+					to_chat(src, "<span class='danger'>You lose directional control!</span>")
+					Confuse(10)
 		if (getToxLoss() >= 45)
 			spawn vomit()
+
 
 	//0.1% chance of playing a scary sound to someone who's in complete darkness
 	if(isturf(loc) && rand(1,1000) == 1)
@@ -1569,24 +1564,24 @@
 	we only set those statuses and icons upon changes.  Then those HUD items will simply add those pre-made images.
 	This proc below is only called when those HUD elements need to change as determined by the mobs hud_updateflag.
 */
-
-
 /mob/living/carbon/human/proc/handle_hud_list()
 	if (BITTEST(hud_updateflag, HEALTH_HUD))
-		var/image/holder = hud_list[HEALTH_HUD]
+		var/image/holder = grab_hud(HEALTH_HUD)
 		if(stat == DEAD)
 			holder.icon_state = "-100" 	// X_X
 		else
 			holder.icon_state = RoundHealth((health-config.health_threshold_crit)/(getMaxHealth()-config.health_threshold_crit)*100)
-		hud_list[HEALTH_HUD] = holder
+		apply_hud(HEALTH_HUD, holder)
 
 	if (BITTEST(hud_updateflag, LIFE_HUD))
-		var/image/holder = hud_list[LIFE_HUD]
-		if(stat == DEAD)
+		var/image/holder = grab_hud(LIFE_HUD)
+		if(isSynthetic())
+			holder.icon_state = "hudrobo"
+		else if(stat == DEAD)
 			holder.icon_state = "huddead"
 		else
 			holder.icon_state = "hudhealthy"
-		hud_list[LIFE_HUD] = holder
+		apply_hud(LIFE_HUD, holder)
 
 	if (BITTEST(hud_updateflag, STATUS_HUD))
 		var/foundVirus = 0
@@ -1595,9 +1590,11 @@
 				foundVirus = 1
 				break
 
-		var/image/holder = hud_list[STATUS_HUD]
-		var/image/holder2 = hud_list[STATUS_HUD_OOC]
-		if(stat == DEAD)
+		var/image/holder = grab_hud(STATUS_HUD)
+		var/image/holder2 = grab_hud(STATUS_HUD_OOC)
+		if (isSynthetic())
+			holder.icon_state = "hudrobo"
+		else if(stat == DEAD)
 			holder.icon_state = "huddead"
 			holder2.icon_state = "huddead"
 		else if(foundVirus)
@@ -1616,11 +1613,11 @@
 			else
 				holder2.icon_state = "hudhealthy"
 
-		hud_list[STATUS_HUD] = holder
-		hud_list[STATUS_HUD_OOC] = holder2
+		apply_hud(STATUS_HUD, holder)
+		apply_hud(STATUS_HUD_OOC, holder2)
 
 	if (BITTEST(hud_updateflag, ID_HUD))
-		var/image/holder = hud_list[ID_HUD]
+		var/image/holder = grab_hud(ID_HUD)
 		if(wear_id)
 			var/obj/item/weapon/card/id/I = wear_id.GetID()
 			if(I)
@@ -1630,11 +1627,10 @@
 		else
 			holder.icon_state = "hudunknown"
 
-
-		hud_list[ID_HUD] = holder
+		apply_hud(ID_HUD, holder)
 
 	if (BITTEST(hud_updateflag, WANTED_HUD))
-		var/image/holder = hud_list[WANTED_HUD]
+		var/image/holder = grab_hud(WANTED_HUD)
 		holder.icon_state = "hudblank"
 		var/perpname = name
 		if(wear_id)
@@ -1657,15 +1653,16 @@
 					else if((R.fields["id"] == E.fields["id"]) && (R.fields["criminal"] == "Released"))
 						holder.icon_state = "hudreleased"
 						break
-		hud_list[WANTED_HUD] = holder
+
+		apply_hud(WANTED_HUD, holder)
 
 	if (  BITTEST(hud_updateflag, IMPLOYAL_HUD) \
 	   || BITTEST(hud_updateflag,  IMPCHEM_HUD) \
 	   || BITTEST(hud_updateflag, IMPTRACK_HUD))
 
-		var/image/holder1 = hud_list[IMPTRACK_HUD]
-		var/image/holder2 = hud_list[IMPLOYAL_HUD]
-		var/image/holder3 = hud_list[IMPCHEM_HUD]
+		var/image/holder1 = grab_hud(IMPTRACK_HUD)
+		var/image/holder2 = grab_hud(IMPLOYAL_HUD)
+		var/image/holder3 = grab_hud(IMPCHEM_HUD)
 
 		holder1.icon_state = "hudblank"
 		holder2.icon_state = "hudblank"
@@ -1681,20 +1678,22 @@
 					if(istype(I,/obj/item/weapon/implant/chem))
 						holder3.icon_state = "hud_imp_chem"
 
-		hud_list[IMPTRACK_HUD] = holder1
-		hud_list[IMPLOYAL_HUD] = holder2
-		hud_list[IMPCHEM_HUD]  = holder3
+		apply_hud(IMPTRACK_HUD, holder1)
+		apply_hud(IMPLOYAL_HUD, holder2)
+		apply_hud(IMPCHEM_HUD, holder3)
 
 	if (BITTEST(hud_updateflag, SPECIALROLE_HUD))
-		var/image/holder = hud_list[SPECIALROLE_HUD]
+		var/image/holder = grab_hud(SPECIALROLE_HUD)
 		holder.icon_state = "hudblank"
 		if(mind && mind.special_role)
 			if(hud_icon_reference[mind.special_role])
 				holder.icon_state = hud_icon_reference[mind.special_role]
 			else
 				holder.icon_state = "hudsyndicate"
-			hud_list[SPECIALROLE_HUD] = holder
+		apply_hud(SPECIALROLE_HUD, holder)
+
 	attempt_vr(src,"handle_hud_list_vr",list()) //VOREStation Add - Custom HUDs.
+
 	hud_updateflag = 0
 
 /mob/living/carbon/human/handle_stunned()

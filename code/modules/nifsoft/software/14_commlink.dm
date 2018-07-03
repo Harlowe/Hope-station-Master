@@ -7,22 +7,23 @@
 	cost = 500
 	wear = 0
 	p_drain = 0.01
+	other_flags = (NIF_O_COMMLINK)
 
 	install()
 		if((. = ..()))
 			nif.comm = new(nif,src)
 
+	uninstall()
+		var/obj/item/device/nif/lnif = nif //Awkward. Parent clears it in an attempt to clean up.
+		if((. = ..()) && lnif)
+			qdel_null(lnif.comm)
+
 	activate()
 		if((. = ..()))
-			nif.set_flag(NIF_O_COMMLINK,NIF_FLAGS_OTHER)
 			nif.comm.initialize_exonet(nif.human)
 			nif.comm.ui_interact(nif.human,key_state = commlink_state)
 			spawn(0)
 				deactivate()
-
-	deactivate()
-		if((. = ..()))
-			nif.clear_flag(NIF_O_COMMLINK,NIF_FLAGS_OTHER)
 
 	stat_text()
 		return "Show Commlink"
@@ -42,7 +43,6 @@
 		..()
 		nif = newloc
 		nifsoft = soft
-		register_device(nif.human)
 		qdel_null(camera) //Not supported on internal one.
 
 	Destroy()
@@ -51,6 +51,11 @@
 			nif = null
 		nifsoft = null
 		return ..()
+
+/obj/item/device/communicator/commlink/register_device(var/new_name)
+	owner = new_name
+	name = "[owner]'s [initial(name)]"
+	nif.save_data["commlink_name"] = owner
 
 //So that only the owner's chat is relayed to others.
 /obj/item/device/communicator/commlink/hear_talk(mob/living/M, text, verb, datum/language/speaking)

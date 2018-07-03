@@ -8,7 +8,7 @@ var/list/table_icon_cache = list()
 	density = 1
 	anchored = 1
 	climbable = 1
-	layer = 2.8
+	layer = TABLE_LAYER
 	throwpass = 1
 	surgery_odds = 66
 	var/flipped = 0
@@ -56,8 +56,11 @@ var/list/table_icon_cache = list()
 		visible_message("<span class='warning'>\The [src] breaks down!</span>")
 		return break_to_parts() // if we break and form shards, return them to the caller to do !FUN! things with
 
+/obj/structure/table/blob_act()
+	take_damage(100)
+
 /obj/structure/table/initialize()
-	..()
+	. = ..()
 
 	// One table per turf.
 	for(var/obj/structure/table/T in loc)
@@ -172,6 +175,21 @@ var/list/table_icon_cache = list()
 /obj/structure/table/attack_alien(mob/user as mob)
 	visible_message("<span class='danger'>\The [user] tears apart \the [src]!</span>")
 	src.break_to_parts()
+
+/obj/structure/table/attack_generic(mob/user as mob, var/damage)
+	if(damage >= 10)
+		if(reinforced && prob(70))
+			visible_message("<span class='danger'>\The [user] smashes against \the [src]!</span>")
+			take_damage(damage/2)
+			user.do_attack_animation(src)
+			..()
+		else
+			visible_message("<span class='danger'>\The [user] tears apart \the [src]!</span>")
+			src.break_to_parts()
+			user.do_attack_animation(src)
+			return 1
+	visible_message("<span class='notice'>\The [user] scratches at \the [src]!</span>")
+	return ..()
 
 /obj/structure/table/MouseDrop_T(obj/item/stack/material/what)
 	if(can_reinforce && isliving(usr) && (!usr.stat) && istype(what) && usr.get_active_hand() == what && Adjacent(usr))

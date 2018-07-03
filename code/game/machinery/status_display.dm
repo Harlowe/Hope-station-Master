@@ -12,6 +12,8 @@
 /obj/machinery/status_display
 	icon = 'icons/obj/status_display.dmi'
 	icon_state = "frame"
+	plane = TURF_PLANE
+	layer = ABOVE_TURF_LAYER
 	name = "status display"
 	anchored = 1
 	density = 0
@@ -61,7 +63,7 @@
 
 // register for radio system
 /obj/machinery/status_display/initialize()
-	..()
+	. = ..()
 	if(radio_controller)
 		radio_controller.add_object(src, frequency)
 

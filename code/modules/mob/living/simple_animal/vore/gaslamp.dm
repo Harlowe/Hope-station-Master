@@ -13,6 +13,7 @@ TODO: Make them light up and heat the air when exposed to oxygen.
 /mob/living/simple_animal/retaliate/gaslamp
 	name = "gaslamp"
 	desc = "Some sort of floaty alien with a warm glow. This creature is endemic to Virgo-3B."
+	tt_desc = "Semaeostomeae virginus"
 	icon = 'icons/mob/vore32x64.dmi'
 	icon_state = "gaslamp"
 	icon_living = "gaslamp"
@@ -30,7 +31,7 @@ TODO: Make them light up and heat the air when exposed to oxygen.
 
 	melee_damage_lower = 30 // Because fuck anyone who hurts this sweet, innocent creature.
 	melee_damage_upper = 30
-	attacktext = "thrashed"
+	attacktext = list("thrashed")
 	friendly = "caressed"
 
 	response_help   = "brushes"	// If clicked on help intent

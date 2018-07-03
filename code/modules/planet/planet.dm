@@ -12,7 +12,8 @@
 	var/datum/weather_holder/weather_holder
 
 	var/sun_position = 0 // 0 means midnight, 1 means noon.
-	var/list/sun = list("range","brightness","color")
+	var/list/sun = list("range","brightness","color","lum_r","lum_g","lum_b")
+	var/list/datum/lighting_corner/sunlit_corners = list()
 	var/expected_z_levels = list()
 
 	var/turf/unsimulated/wall/planetary/planetary_wall_type = /turf/unsimulated/wall/planetary
@@ -29,9 +30,10 @@
 	current_time = current_time.make_random_time()
 	update_sun()
 
-/datum/planet/proc/process(amount)
+/datum/planet/proc/process(last_fire)
 	if(current_time)
-		current_time = current_time.add_seconds(amount)
+		var/difference = world.time - last_fire
+		current_time = current_time.add_seconds(difference SECONDS)
 	update_weather() // We update this first, because some weather types decease the brightness of the sun.
 	if(sun_last_process <= world.time - sun_process_interval)
 		update_sun()

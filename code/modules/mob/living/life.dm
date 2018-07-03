@@ -6,11 +6,12 @@
 
 	if (transforming)
 		return
+	handle_modifiers() //VOREStation Edit - Needs to be done even if in nullspace.
 	if(!loc)
 		return
 	var/datum/gas_mixture/environment = loc.return_air()
 
-	handle_modifiers() // Do this early since it might affect other things later.
+	//handle_modifiers() // Do this early since it might affect other things later. //VOREStation Edit
 
 	handle_light()
 
@@ -28,8 +29,6 @@
 
 		//Random events (vomiting etc)
 		handle_random_events()
-
-		attempt_vr(src,"handle_internal_contents",args) //VOREStation Code
 
 		. = 1
 
@@ -113,15 +112,11 @@
 /mob/living/proc/handle_stunned()
 	if(stunned)
 		AdjustStunned(-1)
-		if(!stunned)
-			update_icons()
 	return stunned
 
 /mob/living/proc/handle_weakened()
 	if(weakened)
 		weakened = max(weakened-1,0)
-		if(!weakened)
-			update_icons()
 	return weakened
 
 /mob/living/proc/handle_stuttering()
@@ -147,8 +142,6 @@
 /mob/living/proc/handle_paralysed()
 	if(paralysis)
 		AdjustParalysis(-1)
-		if(!paralysis)
-			update_icons()
 	return paralysis
 
 /mob/living/proc/handle_disabilities()
@@ -175,6 +168,7 @@
 	..()
 
 	handle_vision()
+	handle_darksight()
 	handle_hud_icons()
 
 	return 1
@@ -204,10 +198,41 @@
 			return TRUE
 
 	else if(on_fire)
-		set_light(light_range + 3, round(fire_stacks), l_color = "#FF9933")
+		set_light(min(round(fire_stacks), 3), round(fire_stacks), l_color = "#FF9933")
 		return TRUE
+
+	else if(glow_toggle)
+		set_light(glow_range, glow_intensity, glow_color)
 
 	else
 		set_light(0)
 		return FALSE
 
+/mob/living/proc/handle_darksight()
+	if(!seedarkness) //Cheap 'always darksight' var
+		dsoverlay.alpha = 255
+		return
+
+	var/darksightedness = min(see_in_dark/world.view,1.0)	//A ratio of how good your darksight is, from 'nada' to 'really darn good'
+	var/current = dsoverlay.alpha/255						//Our current adjustedness
+
+	var/brightness = 0.0 //We'll assume it's superdark if we can't find something else.
+
+	if(isturf(loc))
+		var/turf/T = loc //Will be true 99% of the time, thus avoiding the whole elif chain
+		brightness = T.get_lumcount()
+
+	//Snowflake treatment of potential locations
+	else if(istype(loc,/obj/mecha)) //I imagine there's like displays and junk in there. Use the lights!
+		brightness = 1
+	else if(istype(loc,/obj/item/weapon/holder)) //Poor carried teshari and whatnot should adjust appropriately
+		var/turf/T = get_turf(src)
+		brightness = T.get_lumcount()
+
+	var/darkness = 1-brightness					//Silly, I know, but 'alpha' and 'darkness' go the same direction on a number line
+	var/adjust_to = min(darkness,darksightedness)//Capped by how darksighted they are
+	var/distance = abs(current-adjust_to)		//Used for how long to animate for
+	if(distance < 0.01) return					//We're already all set
+
+	//world << "[src] in B:[round(brightness,0.1)] C:[round(current,0.1)] A2:[round(adjust_to,0.1)] D:[round(distance,0.01)] T:[round(distance*10 SECONDS,0.1)]"
+	animate(dsoverlay, alpha = (adjust_to*255), time = (distance*10 SECONDS))

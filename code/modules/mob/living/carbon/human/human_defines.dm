@@ -23,6 +23,8 @@
 	var/g_skin = 0
 	var/b_skin = 0
 
+	var/skin_state = SKIN_NORMAL
+
 	//Synth colors
 	var/synth_color	= 0					//Lets normally uncolorable synth parts be colorable.
 	var/r_synth							//Used with synth_color to color synth parts that normaly can't be colored.
@@ -71,9 +73,6 @@
 	var/used_skillpoints = 0
 	var/skill_specialization = null
 	var/list/skills = list()
-
-	var/icon/stand_icon = null
-	var/icon/lying_icon = null
 
 	var/voice = ""	//Instead of new say code calling GetVoice() over and over and over, we're just going to ask this variable, which gets updated in Life()
 

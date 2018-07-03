@@ -11,7 +11,8 @@ var/const/ENGINEER			=(1<<6)
 var/const/ATMOSTECH			=(1<<7)
 var/const/AI				=(1<<8)
 var/const/CYBORG			=(1<<9)
-
+var/const/BLUESHIELD		=(1<<13) //YW addition
+var/const/INTERN			=(1<<15) //VOREStation Add
 
 var/const/MEDSCI			=(1<<1)
 
@@ -27,7 +28,6 @@ var/const/ROBOTICIST		=(1<<8)
 var/const/XENOBIOLOGIST		=(1<<9)
 var/const/PARAMEDIC			=(1<<10)
 
-
 var/const/CIVILIAN			=(1<<2)
 
 var/const/HOP				=(1<<0)
@@ -41,11 +41,10 @@ var/const/CARGOTECH			=(1<<7)
 var/const/MINER				=(1<<8)
 var/const/LAWYER			=(1<<9)
 var/const/CHAPLAIN			=(1<<10)
-var/const/CLOWN				=(1<<11)
-var/const/MIME				=(1<<12)
-var/const/ASSISTANT			=(1<<13)
-var/const/BRIDGE			=(1<<14)
-
+var/const/ASSISTANT			=(1<<11)
+var/const/BRIDGE			=(1<<12)
+var/const/CLOWN				=(1<<13) //VOREStation Add
+var/const/MIME				=(1<<14) //VOREStation Add
 
 var/list/assistant_occupations = list(
 )
@@ -58,14 +57,15 @@ var/list/command_positions = list(
 	"Chief Engineer",
 	"Research Director",
 	"Chief Medical Officer",
-	"Command Secretary"
+	"Command Secretary",
+	"Blueshield Guard"
 )
 
 
 var/list/engineering_positions = list(
 	"Chief Engineer",
 	"Station Engineer",
-	"Atmospheric Technician",
+	"Atmospheric Technician"
 )
 
 
@@ -75,15 +75,18 @@ var/list/medical_positions = list(
 	"Geneticist",
 	"Psychiatrist",
 	"Chemist",
+	"Search and Rescue", // VOREStation Edit - Moved SAR from planetary -> medical
 	"Paramedic"
 )
 
 
 var/list/science_positions = list(
 	"Research Director",
+	"Pathfinder", // VOREStation Edit - Added Pathfinder
 	"Scientist",
 	"Geneticist",	//Part of both medical and science
 	"Roboticist",
+	"Explorer", // VOREStation Edit - Moved Explorer from planetary -> science
 	"Xenobiologist"
 )
 
@@ -103,7 +106,9 @@ var/list/civilian_positions = list(
 	"Librarian",
 	"Lawyer",
 	"Chaplain",
-	"Assistant"
+	"Pilot",  // VOREStation Edit - Moved Pilot from planetary -> civ
+	USELESS_JOB, //VOREStation Edit - Visitor not Assistant
+	"Intern" //VOREStation Edit - Intern
 )
 
 
@@ -112,6 +117,13 @@ var/list/security_positions = list(
 	"Warden",
 	"Detective",
 	"Security Officer"
+)
+
+
+var/list/planet_positions = list(
+	// "Explorer", // VOREStation Edit - Moved Explorer from planetary -> science
+	// "Pilot",  // VOREStation Edit - Moved Pilot from planetary -> civ
+	// "Search and Rescue"  // VOREStation Edit - Moved SAR from planetary -> medical
 )
 
 

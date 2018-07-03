@@ -81,8 +81,9 @@
 
 //cargo trains are open topped, so there is a chance the projectile will hit the mob ridding the train instead
 /obj/vehicle/train/cargo/bullet_act(var/obj/item/projectile/Proj)
-	if(buckled_mob && prob(70))
-		buckled_mob.bullet_act(Proj)
+	if(has_buckled_mobs() && prob(70))
+		var/mob/living/L = pick(buckled_mobs)
+		L.bullet_act(Proj)
 		return
 	..()
 
@@ -163,8 +164,8 @@
 		var/mob/living/carbon/human/D = load
 		D << "<font color='red'><B>You ran over [H]!</B></font>"
 		visible_message("<B><font color='red'>\The [src] ran over [H]!</B></font>")
+		add_attack_logs(D,H,"Ran over with [src.name]")
 		attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [H.name] ([H.ckey]), driven by [D.name] ([D.ckey])</font>")
-		msg_admin_attack("[D.name] ([D.ckey]) ran over [H.name] ([H.ckey]). (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>)")
 	else
 		attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [H.name] ([H.ckey])</font>")
 
@@ -256,7 +257,7 @@
 //-------------------------------------------
 // Loading/unloading procs
 //-------------------------------------------
-/obj/vehicle/train/cargo/trolley/load(var/atom/movable/C)
+/obj/vehicle/train/cargo/trolley/load(var/atom/movable/C, var/mob/user)
 	if(ismob(C) && !passenger_allowed)
 		return 0
 	if(!istype(C,/obj/machinery) && !istype(C,/obj/structure/closet) && !istype(C,/obj/structure/largecrate) && !istype(C,/obj/structure/reagent_dispensers) && !istype(C,/obj/structure/ore_box) && !istype(C, /mob/living/carbon/human))
@@ -267,12 +268,12 @@
 	if(istype(C, /obj/machinery))
 		load_object(C)
 	else
-		..()
+		..(C, user)
 
 	if(load)
 		return 1
 
-/obj/vehicle/train/cargo/engine/load(var/atom/movable/C)
+/obj/vehicle/train/cargo/engine/load(var/atom/movable/C, var/mob/user)
 	if(!istype(C, /mob/living/carbon/human))
 		return 0
 

@@ -43,7 +43,7 @@
 	desc = "You're rather inexperienced with guns, you've never used one in your life, or you're just really rusty.  \
 	Regardless, you find it quite difficult to land shots where you wanted them to go."
 
-	accuracy = -1
+	accuracy = -15
 	accuracy_dispersion = 1
 
 /datum/modifier/trait/high_metabolism
@@ -64,13 +64,13 @@
 	name = "Larger"
 	desc = "Your body is larger than average."
 
-	icon_scale_percent = 1.2
+	icon_scale_percent = 1.1
 
 /datum/modifier/trait/large
 	name = "Large"
 	desc = "Your body is a bit larger than average."
 
-	icon_scale_percent = 1.1
+	icon_scale_percent = 1.05
 
 /datum/modifier/trait/small
 	name = "Small"
@@ -83,3 +83,21 @@
 	desc = "Your body is smaller than average."
 
 	icon_scale_percent = 0.9
+
+/datum/modifier/trait/colorblind_taj
+	name = "Colorblind - B+R"
+	desc = "You are colorblind. You have a minor issue with blue colors and have difficulty recognizing them from red colors."
+	
+	client_color = MATRIX_Taj_Colorblind
+
+/datum/modifier/trait/colorblind_vulp
+	name = "Colorblind - G+R"
+	desc = "You are colorblind. You have a severe issue with green colors and have difficulty recognizing them from red colors."
+	
+	client_color = MATRIX_Vulp_Colorblind
+
+/datum/modifier/trait/colorblind_mono
+	name = "Colorblind - Mono"
+	desc = "You are colorblind. Your condition is rare, but you can see no colors at all."
+	
+	client_color = MATRIX_Monochromia

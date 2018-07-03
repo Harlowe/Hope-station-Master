@@ -54,8 +54,7 @@
 	fire_sound = 'sound/weapons/battlerifle.ogg'
 	load_method = MAGAZINE
 	slot_flags = SLOT_BACK
-	//requires_two_hands = 1
-	one_handed_penalty = 4 // The weapon itself is heavy
+	one_handed_penalty = 60 // The weapon itself is heavy
 
 // For general use
 /obj/item/weapon/gun/projectile/shotgun/pump/USDF
@@ -86,7 +85,7 @@
 
 	firemodes = list(
 		list(mode_name="semiauto",       burst=1, fire_delay=0,    move_delay=null, burst_accuracy=null, dispersion=null),
-		list(mode_name="3-round bursts", burst=3, fire_delay=null, move_delay=6,    burst_accuracy=list(0,-1,-2), dispersion=list(0.0, 0.6, 0.6))
+		list(mode_name="3-round bursts", burst=3, fire_delay=null, move_delay=6,    burst_accuracy=list(0,-15,-30), dispersion=list(0.0, 0.6, 0.6))
 		)
 
 /obj/item/weapon/gun/projectile/automatic/pdw/update_icon(var/ignore_inhands)
@@ -237,69 +236,6 @@
 	item_state = (ammo_magazine)? "arifle" : "arifle-empty"
 	if(!ignore_inhands) update_held_icon()
 
-//Currently, the only problem I have now is that this weapon's item_state isn't working.
-/* // This has never worked and probably never will work. Why do we even have this?
-/obj/item/weapon/gun/projectile/automatic/fluff/crestrose
-	name = "Crescent Rose"
-	desc = "Can you match my resolve? If so then you will succeed. I believe that the human spirit is indomitable. Keep Moving Forward. Uses 7.62mm rounds."
-	icon = 'icons/vore/custom_guns_vr.dmi'
-	icon_state = "crestrose_fold"
-
-	icon_override = 'icons/vore/custom_guns_vr.dmi'
-	item_state = "crestrose_fold_mob"
-
-	item_icons = null
-
-	w_class = ITEMSIZE_LARGE
-	origin_tech = list(TECH_COMBAT = 7, TECH_MATERIAL = 4)
-	slot_flags = null
-	fire_sound = 'sound/weapons/Gunshot_light.ogg'
-	load_method = MAGAZINE
-	force = 3
-	recoil = 2
-	var/on = 0
-	auto_eject = 1
-	auto_eject_sound = 'sound/weapons/smg_empty_alarm.ogg'
-	hitsound = null
-	caliber = "s762"
-	magazine_type = /obj/item/ammo_magazine/m762
-	allowed_magazines = list(/obj/item/ammo_magazine/m762)
-
-/obj/item/weapon/gun/projectile/automatic/fluff/crestrose/attack_self(mob/user as mob)
-	on = !on
-	if(on)
-		user.visible_message("<span class='warning'>With a press of a button, [user]'s gun turns into a deadly scythe.</span>",\
-		"<span class='warning'>You extend The Rose's thorns.</span>",\
-		"You hear an ominous click.")
-		icon = 'icons/vore/custom_guns_vr.dmi'
-		icon_state = "crestrose"
-		icon_override = 'icons/vore/custom_guns_vr.dmi'
-		item_state = "crestrose_mob"
-		w_class = ITEMSIZE_LARGE
-		force = 15//Obscenely robust
-		attack_verb = list("slashed", "cut", "drives")
-		hitsound = 'sound/weapons/bladeslice.ogg'
-	else
-		user.visible_message("<span class='notice'>\The [user] folds the weapon back up into a gun.</span>",\
-		"<span class='notice'>You fold up the weapon.</span>",\
-		"You hear a click.")
-		icon = 'icons/vore/custom_guns_vr.dmi'
-		icon_state = "crestrose_fold"
-		icon_override = 'icons/vore/custom_guns_vr.dmi'
-		item_state = "crestrose_fold_mob"
-		w_class = ITEMSIZE_NORMAL
-		force = 3//Not so obscenely robust
-		attack_verb = list("hit", "melee'd")
-		hitsound = null
-
-
-/obj/item/weapon/gun/projectile/automatic/fluff/crestrose/handle_shield(mob/user, var/damage, atom/damage_source = null, mob/attacker = null, var/def_zone = null, var/attack_text = "the attack")
-	if(default_parry_check(user, attacker, damage_source) && prob(50))
-		user.visible_message("<span class='danger'>\The [user] parries [attack_text] with \the [src]!</span>")
-		playsound(user.loc, 'sound/weapons/punchmiss.ogg', 50, 1)
-		return 1
-	return 0*/
-
 //-----------------------Tranq Gun----------------------------------
 /obj/item/weapon/gun/projectile/dartgun/tranq
 	name = "tranquilizer gun"
@@ -385,8 +321,7 @@
 	origin_tech = list(TECH_COMBAT = 4, TECH_MAGNET = 2, TECH_ILLEGAL = 3)
 	modifystate = "g44estun"
 
-//	requires_two_hands = 1
-	one_handed_penalty = 4
+	one_handed_penalty = 60
 
 	firemodes = list(
 		list(mode_name="stun", burst=1, projectile_type=/obj/item/projectile/beam/stun/weak, modifystate="g44estun", fire_sound='sound/weapons/Taser.ogg', charge_cost = 100),
@@ -412,6 +347,15 @@
 	name = "\improper MEUSOC .45"
 	desc = "Some serious drywall work, coming up!"
 */
+//hzdonut:Jesse Soemmer
+/obj/item/weapon/gun/projectile/revolver/fluff/jesselemat
+	name = "Modified LeMat"
+	desc = "The LeMat Revolver is a 9 shot revolver with a secondary firing barrel for loading shotgun shells. Uses .38-Special and 12g rounds depending on the barrel. This one appears to have had it's secondary barrel sealed off and looks to be in pristine condition. Either it's brand new, or its owner takes very good care of it."
+	icon_state = "lemat"
+	max_shells = 9
+	caliber = ".38"
+	ammo_type = /obj/item/ammo_casing/a38
+	preserve_item = FALSE
 
 //////////////////// Energy Weapons ////////////////////
 
@@ -486,7 +430,7 @@
 	icon_state = "olivawcivil"
 	firemodes = list(
 		list(mode_name="semiauto",       burst=1, fire_delay=1.2,    move_delay=null, burst_accuracy=null, dispersion=null),
-		list(mode_name="2-round bursts", burst=2, fire_delay=0.2, move_delay=4,    burst_accuracy=list(0,-1),       dispersion=list(1.2, 1.8)),
+		list(mode_name="2-round bursts", burst=2, fire_delay=0.2, move_delay=4,    burst_accuracy=list(0,-15),       dispersion=list(1.2, 1.8)),
 		)
 
 /obj/item/weapon/gun/projectile/giskard/olivaw/update_icon()
@@ -536,7 +480,7 @@
 	origin_tech = list(TECH_COMBAT = 4, TECH_MATERIAL = 2)
 	firemodes = list(
 		list(mode_name="semiauto",       burst=1, fire_delay=0,    move_delay=null, burst_accuracy=null, dispersion=null),
-		list(mode_name="3-round bursts", burst=3, fire_delay=null, move_delay=4,    burst_accuracy=list(0,-1,-1),       dispersion=list(0.0, 0.6, 1.0)),
+		list(mode_name="3-round bursts", burst=3, fire_delay=null, move_delay=4,    burst_accuracy=list(0,-15,-15),       dispersion=list(0.0, 0.6, 1.0)),
 		)
 
 /obj/item/weapon/gun/projectile/automatic/sol/proc/update_charge()
@@ -576,11 +520,11 @@
 /obj/item/weapon/gun/energy/gun/martin/proc/update_mode()
 	var/datum/firemode/current_mode = firemodes[sel_mode]
 	switch(current_mode.name)
-		if("stun") overlays += "taser_pdw"
-		if("lethal") overlays += "lazer_pdw"
+		if("stun") add_overlay("taser_pdw")
+		if("lethal") add_overlay("lazer_pdw")
 
 /obj/item/weapon/gun/energy/gun/martin/update_icon()
-	overlays.Cut()
+	cut_overlays()
 	update_mode()
 
 /////////////////////////////////////////////////////
@@ -777,3 +721,115 @@
 	name = "speedloader (.44 rubber)"
 	icon_state = "r357"
 	ammo_type = /obj/item/ammo_casing/a44/rubber
+
+//Expedition pistol
+/obj/item/weapon/gun/energy/frontier
+	name = "frontier phaser"
+	desc = "An extraordinarily rugged laser weapon, built to last and requiring effectively no maintenance. Includes a built-in crank charger for recharging away from civilization."
+	icon = 'icons/obj/gun_vr.dmi'
+	icon_state = "phaser"
+	item_state = "phaser"
+	item_icons = list(slot_l_hand_str = 'icons/mob/items/lefthand_guns_vr.dmi', slot_r_hand_str = 'icons/mob/items/righthand_guns_vr.dmi', "slot_belt" = 'icons/mob/belt_vr.dmi')
+	item_state_slots = list(slot_r_hand_str = "phaser", slot_l_hand_str = "phaser", "slot_belt" = "phaser")
+	fire_sound = 'sound/weapons/laser2.ogg'
+	origin_tech = list(TECH_COMBAT = 4, TECH_MAGNET = 2, TECH_POWER = 4)
+
+	battery_lock = 1
+	unacidable = 1
+
+	var/recharging = 0
+
+	projectile_type = /obj/item/projectile/beam
+	firemodes = list(
+		list(mode_name="normal", fire_delay=12, projectile_type=/obj/item/projectile/beam, charge_cost = 300),
+		list(mode_name="low-power", fire_delay=8, projectile_type=/obj/item/projectile/beam/weaklaser, charge_cost = 60),
+		)
+
+/obj/item/weapon/gun/energy/frontier/unload_ammo(var/mob/user)
+	if(recharging)
+		return
+	recharging = 1
+	update_icon()
+	user.visible_message("<span class='notice'>[user] opens \the [src] and starts pumping the handle.</span>", \
+						"<span class='notice'>You open \the [src] and start pumping the handle.</span>")
+	while(recharging)
+		if(!do_after(user, 10, src))
+			break
+		playsound(get_turf(src),'sound/items/change_drill.ogg',25,1)
+		if(power_supply.give(60) < 60)
+			break
+
+	recharging = 0
+	update_icon()
+
+/obj/item/weapon/gun/energy/frontier/update_icon()
+	if(recharging)
+		icon_state = "[initial(icon_state)]_pump"
+		update_held_icon()
+		return
+	..()
+
+/obj/item/weapon/gun/energy/frontier/emp_act(severity)
+	return ..(severity+2)
+
+/obj/item/weapon/gun/energy/frontier/ex_act() //|rugged|
+	return
+
+/obj/item/weapon/gun/energy/frontier/locked
+	desc = "An extraordinarily rugged laser weapon, built to last and requiring effectively no maintenance. Includes a built-in crank charger for recharging away from civilization. This one has a safety interlock that prevents firing while in proximity to the facility."
+	req_access = list(access_armory) //for toggling safety
+	var/locked = 1
+
+/obj/item/weapon/gun/energy/frontier/locked/attackby(obj/item/I, mob/user)
+	var/obj/item/weapon/card/id/id = I.GetID()
+	if(istype(id))
+		if(check_access(id))
+			locked = !locked
+			to_chat(user, "<span class='warning'>You [locked ? "enable" : "disable"] the safety lock on \the [src].</span>")
+		else
+			to_chat(user, "<span class='warning'>Access denied.</span>")
+		user.visible_message("<span class='notice'>[user] swipes \the [I] against \the [src].</span>")
+	else
+		return ..()
+
+/obj/item/weapon/gun/energy/frontier/locked/emag_act(var/remaining_charges,var/mob/user)
+	..()
+	locked = !locked
+	to_chat(user, "<span class='warning'>You [locked ? "enable" : "disable"] the safety lock on \the [src]!</span>")
+
+/obj/item/weapon/gun/energy/frontier/locked/special_check(mob/user)
+	if(locked)
+		var/turf/T = get_turf(src)
+		if(T.z in using_map.map_levels)
+			to_chat(user, "<span class='warning'>The safety device prevents the gun from firing this close to the facility.</span>")
+			return 0
+	return ..()
+
+//Expeditionary Holdout Phaser
+/obj/item/weapon/gun/energy/frontier/locked/holdout
+	name = "holdout frontier phaser"
+	desc = "A recently introduced weapon intended for self defense by expeditionary support. It includes the same crank charger as the frontier phaser."
+	icon = 'icons/obj/gun_vr.dmi'
+	icon_state = "PDW"
+	item_state = "gun"
+	w_class = ITEMSIZE_SMALL
+	firemodes = list(
+		list(mode_name="normal", fire_delay=12, projectile_type=/obj/item/projectile/beam, charge_cost = 1200),
+		list(mode_name="low-power", fire_delay=8, projectile_type=/obj/item/projectile/beam/weaklaser, charge_cost = 240),
+	)
+
+/obj/item/weapon/gun/energy/frontier/locked/holdout/proc/update_mode()
+	var/datum/firemode/current_mode = firemodes[sel_mode]
+	switch(current_mode.name)
+		if("low-power") add_overlay("taser_pdw")
+		if("normal") add_overlay("lazer_pdw")
+
+/obj/item/weapon/gun/energy/frontier/locked/holdout/update_icon()
+	cut_overlays()
+	if(recharging)
+		icon_state = "[initial(icon_state)]_pump"
+		update_held_icon()
+		return
+	else
+		icon_state = "[initial(icon_state)]"
+		update_mode()

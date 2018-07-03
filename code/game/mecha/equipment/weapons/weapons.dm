@@ -117,51 +117,41 @@
 	projectile = /obj/item/projectile/beam/stun
 	fire_sound = 'sound/weapons/Taser.ogg'
 
-/* Commenting this out rather than removing it because it may be useful for reference.
+
 /obj/item/mecha_parts/mecha_equipment/weapon/honker
-	name = "\improper HoNkER BlAsT 5000"
+	name = "sound emission device"
 	icon_state = "mecha_honker"
-	energy_drain = 200
+	energy_drain = 300
 	equip_cooldown = 150
-	range = MELEE|RANGED
-	construction_time = 500
-	construction_cost = list("metal"=20000,"bananium"=10000)
+	origin_tech = list(TECH_MATERIAL = 2, TECH_COMBAT = 4, TECH_ILLEGAL = 1)
 
-	can_attach(obj/mecha/combat/honker/M as obj)
-		if(!istype(M))
-			return 0
-		return ..()
+/obj/item/mecha_parts/mecha_equipment/honker/action(target)
+	if(!chassis)
+		return 0
+	if(energy_drain && chassis.get_charge() < energy_drain)
+		return 0
+	if(!equip_ready)
+		return 0
 
-	action(target)
-		if(!chassis)
-			return 0
-		if(energy_drain && chassis.get_charge() < energy_drain)
-			return 0
-		if(!equip_ready)
-			return 0
-
-		playsound(chassis, 'sound/items/AirHorn.ogg', 100, 1)
-		chassis.occupant_message("<font color='red' size='5'>HONK</font>")
-		for(var/mob/living/carbon/M in ohearers(6, chassis))
-			if(istype(M, /mob/living/carbon/human))
-				var/mob/living/carbon/human/H = M
-				if(istype(H.l_ear, /obj/item/clothing/ears/earmuffs) || istype(H.r_ear, /obj/item/clothing/ears/earmuffs))
-					continue
-			M << "<font color='red' size='7'>HONK</font>"
-			M.sleeping = 0
-			M.stuttering += 20
-			M.ear_deaf += 30
-			M.Weaken(3)
-			if(prob(30))
-				M.Stun(10)
-				M.Paralyse(4)
-			else
-				M.make_jittery(500)
-		chassis.use_power(energy_drain)
-		log_message("Honked from [src.name]. HONK!")
-		do_after_cooldown()
-		return
-*/
+	playsound(chassis, 'sound/effects/bang.ogg', 30, 1, 30)
+	chassis.occupant_message("<span class='warning'>You emit a high-pitched noise from the mech.</span>")
+	for(var/mob/living/carbon/M in ohearers(6, chassis))
+		if(istype(M, /mob/living/carbon/human))
+			var/ear_safety = 0
+			ear_safety = M.get_ear_protection()
+			if(ear_safety > 0)
+				return
+		to_chat(M, "<span class='warning'>Your ears feel like they're bleeding!</span>")
+		playsound(M, 'sound/effects/bang.ogg', 70, 1, 30)
+		M.sleeping = 0
+		M.ear_deaf += 30
+		M.ear_damage += rand(5, 20)
+		M.Weaken(3)
+		M.Stun(5)
+	chassis.use_power(energy_drain)
+	log_message("Used a sound emission device.")
+	do_after_cooldown()
+	return
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic
 	name = "general ballisic weapon"
@@ -335,3 +325,35 @@
 	projectile = /obj/item/projectile/bullet/incendiary/flamethrower
 
 	origin_tech = list(TECH_MATERIAL = 3, TECH_COMBAT = 3, TECH_PHORON = 3, TECH_ILLEGAL = 2)
+
+//////////////
+//Defensive//
+//////////////
+
+/obj/item/mecha_parts/mecha_equipment/shocker
+	name = "exosuit electrifier"
+	desc = "A device to electrify the external portions of a mecha in order to increase its defensive capabilities."
+	icon_state = "mecha_coil"
+	equip_cooldown = 10
+	energy_drain = 100
+	range = RANGED
+	origin_tech = list(TECH_COMBAT = 3, TECH_POWER = 6)
+	var/shock_damage = 15
+	var/active
+
+/obj/item/mecha_parts/mecha_equipment/shocker/can_attach(obj/mecha/M as obj)
+	if(..())
+		if(!M.proc_res["dynattackby"] && !M.proc_res["dynattackhand"] && !M.proc_res["dynattackalien"])
+			return 1
+	return 0
+
+/obj/item/mecha_parts/mecha_equipment/shocker/attach(obj/mecha/M as obj)
+	..()
+	chassis.proc_res["dynattackby"] = src
+	return
+
+/obj/item/mecha_parts/mecha_equipment/shocker/proc/dynattackby(obj/item/weapon/W, mob/living/user)
+	if(!action_checks(user) || !active)
+		return
+	user.electrocute_act(shock_damage, src)
+	return chassis.dynattackby(W,user)

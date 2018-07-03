@@ -1,5 +1,5 @@
 /datum/species/sergal
-	name = "Sergal"
+	name = SPECIES_SERGAL
 	name_plural = "Sergals"
 	icobase = 'icons/mob/human_races/r_sergal.dmi'
 	deform = 'icons/mob/human_races/r_def_sergal.dmi'
@@ -32,7 +32,7 @@
 
 	spawn_flags = SPECIES_CAN_JOIN
 	appearance_flags = HAS_HAIR_COLOR | HAS_LIPS | HAS_UNDERWEAR | HAS_SKIN_COLOR | HAS_EYE_COLOR
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 	flesh_color = "#AFA59E"
 	base_color = "#777777"
@@ -60,7 +60,7 @@
 		)
 
 /datum/species/akula
-	name = "Akula"
+	name = SPECIES_AKULA
 	name_plural = "Akula"
 	icobase = 'icons/mob/human_races/r_akula.dmi'
 	deform = 'icons/mob/human_races/r_def_akula.dmi'
@@ -76,7 +76,7 @@
 	secondary_langs = list(LANGUAGE_SKRELLIAN)
 	name_language = LANGUAGE_SKRELLIAN
 	color_mult = 1
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 	min_age = 18
 	max_age = 110
@@ -104,7 +104,7 @@
 	return TRUE // Surprise, SHERKS.
 
 /datum/species/nevrean
-	name = "Nevrean"
+	name = SPECIES_NEVREAN
 	name_plural = "Nevreans"
 	icobase = 'icons/mob/human_races/r_nevrean.dmi'
 	deform = 'icons/mob/human_races/r_def_nevrean.dmi'
@@ -120,8 +120,7 @@
 	secondary_langs = list(LANGUAGE_BIRDSONG)
 	name_language = LANGUAGE_BIRDSONG
 	color_mult = 1
-	can_fly = 1
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb,/mob/living/proc/flying_toggle,/mob/living/proc/start_wings_hovering)
 
 	min_age = 18
 	max_age = 110
@@ -149,7 +148,7 @@
 		)
 
 /datum/species/hi_zoxxen
-	name = "Highlander Zorren"
+	name = SPECIES_ZORREN_HIGH
 	name_plural = "Zorren"
 	icobase = 'icons/mob/human_races/r_fox_vr.dmi'
 	deform = 'icons/mob/human_races/r_def_fox.dmi'
@@ -157,8 +156,8 @@
 	icobase_tail = 1
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/claws, /datum/unarmed_attack/bite/sharp)
 	num_alternate_languages = 3
-	secondary_langs = list(LANGUAGE_SIIK)
-	name_language = LANGUAGE_SIIK
+	secondary_langs = list(LANGUAGE_TERMINUS)
+	name_language = LANGUAGE_TERMINUS
 
 	min_age = 18
 	max_age = 110
@@ -176,6 +175,7 @@
 	appearance_flags = HAS_HAIR_COLOR | HAS_LIPS | HAS_UNDERWEAR | HAS_SKIN_COLOR | HAS_EYE_COLOR
 	flesh_color = "#AFA59E"
 	base_color = "#333333"
+	blood_color = "#240bc4"
 	color_mult = 1
 
 	heat_discomfort_strings = list(
@@ -183,10 +183,10 @@
 		"You feel uncomfortably warm.",
 		"Your overheated skin itches."
 		)
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 /datum/species/fl_zorren
-	name = "Flatland Zorren"
+	name = SPECIES_ZORREN_FLAT
 	name_plural = "Zorren"
 	icobase = 'icons/mob/human_races/r_fennec_vr.dmi'
 	deform = 'icons/mob/human_races/r_def_fennec.dmi'
@@ -194,8 +194,8 @@
 	icobase_tail = 1
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/claws, /datum/unarmed_attack/bite/sharp)
 	num_alternate_languages = 3
-	secondary_langs = list(LANGUAGE_SIIK)
-	name_language = LANGUAGE_SIIK
+	secondary_langs = list(LANGUAGE_TERMINUS)
+	name_language = LANGUAGE_TERMINUS
 
 	min_age = 18
 	max_age = 110
@@ -213,8 +213,9 @@
 
 	flesh_color = "#AFA59E"
 	base_color = "#333333"
+	blood_color = "#240bc4"
 	color_mult = 1
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 	heat_discomfort_strings = list(
 		"Your fur prickles in the heat.",
@@ -224,7 +225,7 @@
 
 
 /datum/species/vulpkanin
-	name = "Vulpkanin"
+	name = SPECIES_VULPKANIN
 	name_plural = "Vulpkanin"
 	icobase = 'icons/mob/human_races/r_vulpkanin.dmi'
 	deform = 'icons/mob/human_races/r_vulpkanin.dmi'
@@ -240,7 +241,7 @@
 //	gluttonous = 1
 	num_alternate_languages = 3
 	color_mult = 1
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 	blurb = "Vulpkanin are a species of sharp-witted canine-pideds residing on the planet Altam just barely within the \
 	dual-star Vazzend system. Their politically de-centralized society and independent natures have led them to become a species and \
@@ -260,7 +261,7 @@
 	max_age = 110
 
 /datum/species/xenohybrid
-	name = "Xenomorph Hybrid"
+	name = SPECIES_XENOHYBRID
 	name_plural = "Xenomorphs"
 	icobase = 'icons/mob/human_races/r_xenomorph.dmi'
 	deform = 'icons/mob/human_races/r_def_xenomorph.dmi'
@@ -282,7 +283,7 @@
 
 	//primitive_form = "" //None for these guys
 
-	spawn_flags = SPECIES_CAN_JOIN | SPECIES_IS_WHITELISTED
+	spawn_flags = SPECIES_CAN_JOIN
 	appearance_flags = HAS_HAIR_COLOR | HAS_LIPS | HAS_UNDERWEAR | HAS_SKIN_COLOR | HAS_EYE_COLOR
 
 	blood_color = "#12ff12"
@@ -294,7 +295,7 @@
 		"You feel uncomfortably warm.",
 		"Your chitin feels hot."
 		)
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 /datum/species/unathi
 	spawn_flags = SPECIES_CAN_JOIN //Species_can_join is the only spawn flag all the races get, so that none of them will be whitelist only if whitelist is enabled.
@@ -303,17 +304,18 @@
 	tail_animation = 'icons/mob/species/unathi/tail_vr.dmi'
 	color_mult = 1
 	min_age = 18
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 /datum/species/tajaran
 	spawn_flags = SPECIES_CAN_JOIN
 	icobase = 'icons/mob/human_races/r_tajaran_vr.dmi'
 	deform = 'icons/mob/human_races/r_def_tajaran_vr.dmi'
 	tail_animation = 'icons/mob/species/tajaran/tail_vr.dmi'
+	secondary_langs = list(LANGUAGE_SIIK, LANGUAGE_AKHANI, LANGUAGE_SIIK_TAJR)
 	color_mult = 1
 	min_age = 18
 	gluttonous = 0 //Moving this here so I don't have to fix this conflict every time polaris glances at station.dm
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 /datum/species/skrell
 	spawn_flags = SPECIES_CAN_JOIN
@@ -323,7 +325,7 @@
 	min_age = 18
 
 /datum/species/diona
-	spawn_flags = SPECIES_CAN_JOIN | SPECIES_IS_WHITELISTED
+	spawn_flags = SPECIES_CAN_JOIN
 	min_age = 18
 
 /datum/species/teshari
@@ -339,7 +341,8 @@
 	inherent_verbs = list(
 		/mob/living/carbon/human/proc/sonar_ping,
 		/mob/living/proc/hide,
-		/mob/living/carbon/human/proc/shred_limb
+		/mob/living/proc/shred_limb,
+		/mob/living/proc/toggle_pass_table
 		)
 
 /datum/species/shapeshifter/promethean
@@ -355,14 +358,14 @@
 
 /datum/species/vox
 	gluttonous = 0
-	spawn_flags = SPECIES_CAN_JOIN | SPECIES_IS_WHITELISTED
+	spawn_flags = SPECIES_CAN_JOIN
 	min_age = 18
 	icobase = 'icons/mob/human_races/r_vox_old.dmi'
 	deform = 'icons/mob/human_races/r_def_vox_old.dmi'
-	inherent_verbs = list(/mob/living/carbon/human/proc/shred_limb)
+	inherent_verbs = list(/mob/living/proc/shred_limb)
 
 datum/species/harpy
-	name = "Rapala"
+	name = SPECIES_RAPALA
 	name_plural = "Rapalans"
 	icobase = 'icons/mob/human_races/r_harpy_vr.dmi'
 	deform = 'icons/mob/human_races/r_def_harpy_vr.dmi'
@@ -373,7 +376,7 @@ datum/species/harpy
 	secondary_langs = list(LANGUAGE_BIRDSONG)
 	name_language = null
 	color_mult = 1
-	can_fly = 1
+	inherent_verbs = list(/mob/living/proc/flying_toggle,/mob/living/proc/start_wings_hovering)
 
 	min_age = 18
 	max_age = 80

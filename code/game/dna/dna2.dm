@@ -109,7 +109,7 @@ var/global/list/datum/dna/gene/dna_genes[0]
 	// VOREStation
 
 	// New stuff
-	var/species = "Human"
+	var/species = SPECIES_HUMAN
 	var/list/body_markings = list()
 
 // Make a copy of this strand.
@@ -189,15 +189,18 @@ var/global/list/datum/dna/gene/dna_genes[0]
 	if(istype(character.tail_style, taurtype))
 		character.verbs += /mob/proc/weaveWebBindings
 
-	if(istype(character.tail_style, /datum/sprite_accessory/tail/taur))
-		character.verbs += /mob/proc/ride
-
 
 	// Technically custom_species is not part of the UI, but this place avoids merge problems.
 	src.custom_species = character.custom_species
 	if(istype(character.species,/datum/species/custom))
 		var/datum/species/custom/CS = character.species
 		src.species_traits = CS.traits.Copy()
+		src.base_species = CS.base_species
+		src.blood_color = CS.blood_color
+
+	if(istype(character.species,/datum/species/xenochimera))
+		var/datum/species/xenochimera/CS = character.species
+		//src.species_traits = CS.traits.Copy() //No traits
 		src.base_species = CS.base_species
 		src.blood_color = CS.blood_color
 

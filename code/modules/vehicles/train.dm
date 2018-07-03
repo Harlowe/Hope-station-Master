@@ -22,6 +22,7 @@
 // Standard procs
 //-------------------------------------------
 /obj/vehicle/train/initialize()
+	. = ..()
 	for(var/obj/vehicle/train/T in orange(1, src))
 		latch(T)
 
@@ -55,7 +56,7 @@
 			if(istype(load, /mob/living/carbon/human))
 				var/mob/living/D = load
 				D << "<font color='red'>You hit [M]!</font>"
-				msg_admin_attack("[D.name] ([D.ckey]) hit [M.name] ([M.ckey]) with [src]. (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>)")
+				add_attack_logs(D,M,"Ran over with [src.name]")
 
 
 //-------------------------------------------
@@ -95,7 +96,7 @@
 	if(istype(C,/obj/vehicle/train))
 		latch(C, user)
 	else
-		if(!load(C))
+		if(!load(C, user))
 			user << "<font color='red'>You were unable to load [C] on [src].</font>"
 
 /obj/vehicle/train/attack_hand(mob/user as mob)
@@ -107,7 +108,7 @@
 	else if(load)
 		unload(user)			//unload if loaded
 	else if(!load && !user.buckled)
-		load(user)				//else try climbing on board
+		load(user, user)				//else try climbing on board
 	else
 		return 0
 

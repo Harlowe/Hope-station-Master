@@ -82,7 +82,7 @@
 
 		while(!accepted)
 			if(!B) break // prevents possible runtime errors
-			new_book_style = input(H,"Which bible style would you like?") in list("Bible", "Koran", "Scrapbook", "Creeper", "White Bible", "Holy Light", "Athiest", "Tome", "The King in Yellow", "Ithaqua", "Scientology", "the bible melts", "Necronomicon")
+			new_book_style = input(H,"Which bible style would you like?") in list("Bible", "Koran", "Scrapbook", "Pagan", "White Bible", "Holy Light", "Athiest", "Tome", "The King in Yellow", "Ithaqua", "Scientology", "the bible melts", "Necronomicon","Orthodox","Torah")
 			switch(new_book_style)
 				if("Koran")
 					B.icon_state = "koran"
@@ -90,9 +90,6 @@
 				if("Scrapbook")
 					B.icon_state = "scrapbook"
 					B.item_state = "scrapbook"
-				if("Creeper")
-					B.icon_state = "creeper"
-					B.item_state = "syringe_kit"
 				if("White Bible")
 					B.icon_state = "white"
 					B.item_state = "syringe_kit"
@@ -120,6 +117,15 @@
 				if("Necronomicon")
 					B.icon_state = "necronomicon"
 					B.item_state = "necronomicon"
+				if("Pagan")
+					B.icon_state = "shadows"
+					B.item_state = "syringe_kit"
+				if("Orthodox")
+					B.icon_state = "orthodoxy"
+					B.item_state = "bible"
+				if("Torah")
+					B.icon_state = "torah"
+					B.item_state = "clipboard"
 				else
 					B.icon_state = "bible"
 					B.item_state = "bible"
@@ -142,6 +148,7 @@
 		feedback_set_details("religion_deity","[new_deity]")
 		feedback_set_details("religion_book","[new_book_style]")
 	return 1
-
+/* IF you uncomment this, every time the mob preview updates it makes a new PDA. It seems to work just fine and display without it, so why this exists, haven't a clue. -Hawk
 /datum/job/chaplain/equip_preview(var/mob/living/carbon/human/H, var/alt_title)
 	return equip(H, alt_title, FALSE)
+*/

@@ -205,6 +205,8 @@
 	name = "Telescreen"
 	desc = "Used for watching an empty arena."
 	icon_state = "wallframe"
+	plane = TURF_PLANE
+	layer = ABOVE_TURF_LAYER
 	icon_keyboard = null
 	icon_screen = null
 	light_range_on = 0
@@ -224,7 +226,7 @@
 	var/obj/item/device/radio/radio = null
 
 /obj/machinery/computer/security/telescreen/entertainment/initialize()
-	..()
+	. = ..()
 	radio = new(src)
 	radio.listening = TRUE
 	radio.broadcasting = FALSE

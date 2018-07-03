@@ -29,7 +29,7 @@
 	var/global/list/allocated_gamma = list()
 
 /obj/structure/trash_pile/initialize()
-	..()
+	. = ..()
 	icon_state = pick(
 		"pile1",
 		"pile2",
@@ -162,6 +162,7 @@
 					prob(3);/obj/item/clothing/suit/storage/toggle/leather_jacket,
 					prob(3);/obj/item/device/pda,
 					prob(3);/obj/item/device/radio/headset,
+					prob(3);/obj/item/seeds/lustflower,
 					prob(3);/obj/item/weapon/camera_assembly,
 					prob(3);/obj/item/weapon/caution/cone,
 					prob(3);/obj/item/weapon/cell/high,
@@ -169,7 +170,6 @@
 					prob(3);/obj/item/weapon/spacecash/c20,
 					prob(3);/obj/item/weapon/storage/backpack/dufflebag,
 					prob(3);/obj/item/weapon/storage/box/donkpockets,
-					prob(3);/obj/item/weapon/storage/box/engineer,
 					prob(3);/obj/item/weapon/storage/box/mousetraps,
 					prob(3);/obj/item/weapon/storage/wallet,
 					prob(2);/obj/item/clothing/glasses/meson/prescription,
@@ -190,6 +190,7 @@
 					prob(2);/obj/item/weapon/reagent_containers/glass/rag,
 					prob(2);/obj/item/weapon/storage/box/sinpockets,
 					prob(2);/obj/item/weapon/storage/secure/briefcase,
+					prob(2);/obj/item/clothing/under/fluff/latexmaid,
 					prob(1);/obj/item/clothing/glasses/sunglasses,
 					prob(1);/obj/item/clothing/glasses/welding,
 					prob(1);/obj/item/clothing/gloves/yellow,
@@ -223,7 +224,7 @@
 					prob(4);/obj/item/weapon/gun/energy/sizegun,
 					prob(3);/obj/item/weapon/material/butterfly,
 					prob(3);/obj/item/weapon/material/butterfly/switchblade,
-					prob(3);/obj/item/weapon/material/knuckledusters,
+					prob(3);/obj/item/clothing/gloves/knuckledusters,
 					prob(3);/obj/item/weapon/reagent_containers/syringe/drugs,
 					prob(2);/obj/item/weapon/handcuffs/fuzzy,
 				//	prob(2);/obj/item/weapon/legcuffs,
@@ -237,7 +238,7 @@
 					prob(1);/obj/item/weapon/beartrap,
 					prob(1);/obj/item/weapon/cell/hyper/empty,
 					prob(1);/obj/item/weapon/disk/nifsoft/compliance,
-					prob(1);/obj/item/weapon/material/hatchet/tacknife,
+					prob(1);/obj/item/weapon/material/knife/tacknife,
 					prob(1);/obj/item/weapon/reagent_containers/syringe/steroid)
 
 	var/obj/item/I = new path()

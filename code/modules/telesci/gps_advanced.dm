@@ -1,4 +1,5 @@
-var/global/list/GPS_list = list()
+
+// DEPRECATED - The normal GPS has the advanced features, now. This is obsolete.
 
 // These are distinguished from the ordinary "Relay Position Devices" that just print your location
 // In that they are also all networked with each other to show each other's locations.
@@ -11,7 +12,7 @@ var/global/list/GPS_list = list()
 	slot_flags = SLOT_BELT
 	origin_tech = list(TECH_DATA = 2, TECH_ENGINEERING = 2)
 	var/gpstag = "COM0"
-	var/emped = 0
+	emped = 0
 
 /obj/item/device/gps/advanced/New()
 	..()

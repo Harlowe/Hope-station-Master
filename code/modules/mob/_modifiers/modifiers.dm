@@ -19,6 +19,7 @@
 	var/light_range = null				// How far the light for the above var goes. Not implemented yet.
 	var/light_intensity = null			// Ditto. Not implemented yet.
 	var/mob_overlay_state = null		// Icon_state for an overlay to apply to a (human) mob while this exists.  This is actually implemented.
+	var/client_color = null				// If set, the client will have the world be shown in this color, from their perspective.
 
 	// Now for all the different effects.
 	// Percentage modifiers are expressed as a multipler. (e.g. +25% damage should be written as 1.25)
@@ -36,12 +37,14 @@
 	var/outgoing_melee_damage_percent	// Adjusts melee damage inflicted by holder by a percentage.  Affects attacks by melee weapons and hand-to-hand.
 	var/slowdown						// Negative numbers speed up, positive numbers slow down movement.
 	var/haste							// If set to 1, the mob will be 'hasted', which makes it ignore slowdown and go really fast.
-	var/evasion							// Positive numbers reduce the odds of being hit by 15% each.  Negative numbers increase the odds.
+	var/evasion							// Positive numbers reduce the odds of being hit. Negative numbers increase the odds.
 	var/bleeding_rate_percent			// Adjusts amount of blood lost when bleeding.
-	var/accuracy						// Positive numbers makes hitting things with guns easier, negatives make it harder.  Each point makes it 15% easier or harder, just like evasion.
+	var/accuracy						// Positive numbers makes hitting things with guns easier, negatives make it harder.
 	var/accuracy_dispersion				// Positive numbers make gun firing cover a wider tile range, and therefore more inaccurate.  Negatives help negate dispersion penalties.
 	var/metabolism_percent				// Adjusts the mob's metabolic rate, which affects reagent processing.  Won't affect mobs without reagent processing.
 	var/icon_scale_percent				// Makes the holder's icon get scaled up or down.
+	var/attack_speed_percent			// Makes the holder's 'attack speed' (click delay) shorter or longer.
+	var/pain_immunity					// Makes the holder not care about pain while this is on. Only really useful to human mobs.
 
 /datum/modifier/New(var/new_holder, var/new_origin)
 	holder = new_holder
@@ -50,6 +53,11 @@
 	else // We assume the holder caused the modifier if not told otherwise.
 		origin = weakref(holder)
 	..()
+
+// Checks if the modifier should be allowed to be applied to the mob before attaching it.
+// Override for special criteria, e.g. forbidding robots from receiving it.
+/datum/modifier/proc/can_apply(var/mob/living/L)
+	return TRUE
 
 // Checks to see if this datum should continue existing.
 /datum/modifier/proc/check_if_valid()
@@ -65,7 +73,13 @@
 		holder.update_modifier_visuals()
 	if(icon_scale_percent) // Correct the scaling.
 		holder.update_transform()
+	if(client_color)
+		holder.update_client_color()
 	qdel(src)
+
+// Override this for special effects when it gets added to the mob.
+/datum/modifier/proc/on_applied()
+	return
 
 // Override this for special effects when it gets removed.
 /datum/modifier/proc/on_expire()
@@ -113,15 +127,21 @@
 
 	// If we're at this point, the mob doesn't already have it, or it does but stacking is allowed.
 	var/datum/modifier/mod = new modifier_type(src, origin)
+	if(!mod.can_apply(src))
+		qdel(mod)
+		return
 	if(expire_at)
 		mod.expire_at = world.time + expire_at
 	if(mod.on_created_text)
 		to_chat(src, mod.on_created_text)
 	modifiers.Add(mod)
+	mod.on_applied()
 	if(mod.mob_overlay_state)
 		update_modifier_visuals()
 	if(mod.icon_scale_percent)
 		update_transform()
+	if(mod.client_color)
+		update_client_color()
 
 	return mod
 
@@ -188,13 +208,13 @@
 		effects += "You move at maximum speed, and cannot be slowed by any means."
 
 	if(!isnull(evasion))
-		effects += "You are [abs(evasion * 15)]% [evasion > 0 ? "harder" : "easier"] to hit with weapons."
+		effects += "You are [abs(evasion)]% [evasion > 0 ? "harder" : "easier"] to hit with weapons."
 
 	if(!isnull(bleeding_rate_percent))
 		effects += "You bleed [multipler_to_percentage(bleeding_rate_percent, TRUE)] [bleeding_rate_percent > 1.0 ? "faster" : "slower"]."
 
 	if(!isnull(accuracy))
-		effects += "It is [abs(accuracy * 15)]% [accuracy > 0 ? "easier" : "harder"] for you to hit someone with a ranged weapon."
+		effects += "It is [abs(accuracy)]% [accuracy > 0 ? "easier" : "harder"] for you to hit someone with a ranged weapon."
 
 	if(!isnull(accuracy_dispersion))
 		effects += "Projectiles you fire are [accuracy_dispersion > 0 ? "more" : "less"] likely to stray from your intended target."
@@ -205,6 +225,9 @@
 
 	if(!isnull(icon_scale_percent))
 		effects += "Your appearance is [multipler_to_percentage(icon_scale_percent, TRUE)] [icon_scale_percent > 1 ? "larger" : "smaller"]."
+
+	if(!isnull(attack_speed_percent))
+		effects += "The delay between attacking is [multipler_to_percentage(attack_speed_percent, TRUE)] [disable_duration_percent > 1.0 ? "longer" : "shorter"]."
 
 	return jointext(effects, "<br>")
 

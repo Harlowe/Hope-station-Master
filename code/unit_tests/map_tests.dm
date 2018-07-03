@@ -12,10 +12,9 @@
 					/area/holodeck,
 					/area/supply/station,
 					/area/mine,
-					/area/turbolift, // VOREStation Edit - Its a turbolift,
-					/area/tether/surfacebase/outside, // VOREStation Edit - Outside,
-					/area/vacant // VOREStation Edit - All vacant areas!,
-					)
+					/area/vacant/vacant_shop,
+					/area/turbolift,
+					/area/submap					)
 
 	var/list/exempt_from_atmos = typesof(/area/maintenance,
 						/area/storage,
@@ -25,11 +24,6 @@
 						/area/server,
 						/area/mine,
 						/area/vacant/vacant_shop,
-						/area/engineering/atmos/intake, // VOREStation Edit - Outside,
-						/area/rnd/external, // VOREStation Edit - Outside,
-						/area/tether/surfacebase/mining_main/external, // VOREStation Edit - Outside,
-						/area/tether/surfacebase/mining_main/airlock, // VOREStation Edit - Its an airlock,
-						/area/tether/surfacebase/emergency_storage, // VOREStation Edit,
 						/area/rnd/research_storage, // This should probably be fixed,
 						/area/security/riot_control // This should probably be fixed,
 						)
@@ -40,8 +34,15 @@
 						/area/vacant/vacant_shop
 						)
 
-	for(var/area/A in world)
-		if(A.z == 1 && !(A.type in exempt_areas))
+	// Some maps have areas specific to the map, so include those.
+	exempt_areas += using_map.unit_test_exempt_areas.Copy()
+	exempt_from_atmos += using_map.unit_test_exempt_from_atmos.Copy()
+	exempt_from_apc += using_map.unit_test_exempt_from_apc.Copy()
+
+	var/list/zs_to_test = using_map.unit_test_z_levels || list(1) //Either you set it, or you just get z1
+
+	for(var/area/A in all_areas)
+		if((A.z in zs_to_test) && !(A.type in exempt_areas))
 			area_test_count++
 			var/area_good = 1
 			var/bad_msg = "--------------- [A.name]([A.type])"
@@ -111,9 +112,15 @@
 /datum/unit_test/active_edges/start_test()
 
 	var/active_edges = air_master.active_edges.len
+	var/list/edge_log = list()
+	if(active_edges)
+		for(var/connection_edge/E in air_master.active_edges)
+			edge_log += "Active Edge [E] ([E.type])"
+			for(var/turf/T in E.connecting_turfs)
+				edge_log += "+--- Connecting Turf [T] @ [T.x], [T.y], [T.z]"
 
 	if(active_edges)
-		fail("Maps contained [active_edges] active edges at round-start.")
+		fail("Maps contained [active_edges] active edges at round-start.\n" + edge_log.Join("\n"))
 	else
 		pass("No active edges.")
 

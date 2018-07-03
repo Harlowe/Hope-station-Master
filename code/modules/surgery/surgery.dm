@@ -128,9 +128,9 @@
 				// Not staying still fails you too.
 				if(success)
 					var/calc_duration = rand(S.min_duration, S.max_duration)
-					if(!do_mob(user, M, calc_duration * toolspeed))
+					if(!do_mob(user, M, calc_duration * toolspeed, zone))
 						success = FALSE
-						to_chat(user, "<span class='warning'>You must remain close to your patient to conduct surgery.</span>")
+						to_chat(user, "<span class='warning'>You must remain close to and keep focused on your patient to conduct surgery.</span>")
 
 				if(success)
 					S.end_step(user, M, zone, src)
@@ -163,6 +163,7 @@
 /datum/surgery_status/
 	var/eyes	=	0
 	var/face	=	0
+	var/brainstem = 0
 	var/head_reattach = 0
 	var/current_organ = "organ"
 	var/list/in_progress = list()

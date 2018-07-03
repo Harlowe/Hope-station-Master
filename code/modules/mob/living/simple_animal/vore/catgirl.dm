@@ -1,6 +1,7 @@
 /mob/living/simple_animal/catgirl
 	name = "catgirl"
 	desc = "Her hobbies are catnaps, knocking things over, and headpats."
+	tt_desc = "Homo felinus"
 	icon = 'icons/mob/vore.dmi'
 	icon_state = "catgirl"
 
@@ -20,7 +21,7 @@
 	speak_emote = list("purrs","meows")
 	emote_hear = list("meows","mews")
 	emote_see = list("shakes her head","shivers")
-	attacktext = "swatted"
+	attacktext = list("swatted")
 
 	var/random_skin = 1
 	var/list/skins = list(

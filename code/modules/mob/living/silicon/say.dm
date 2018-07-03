@@ -2,7 +2,7 @@
 	return ..((sanitize ? sanitize(message) : message), whispering = whispering)
 
 /mob/living/silicon/handle_message_mode(message_mode, message, verb, speaking, used_radios, alt_name)
-	log_say("[key_name(src)] : [message]")
+	log_say(message, src)
 
 /mob/living/silicon/robot/handle_message_mode(message_mode, message, verb, speaking, used_radios, alt_name)
 	..()
@@ -64,7 +64,7 @@
 //For holopads only. Usable by AI.
 /mob/living/silicon/ai/proc/holopad_talk(var/message, verb, datum/language/speaking)
 
-	log_say("[key_name(src)] : [message]")
+	log_say("(HPAD) [message]",src)
 
 	message = trim(message)
 
@@ -73,7 +73,6 @@
 
 	var/obj/machinery/hologram/holopad/T = src.holo
 	if(T && T.masters[src])//If there is a hologram and its master is the user.
-		var/obj/effect/overlay/aiholo/hologram = T.masters[src] //VOREStation Add for people in the hologram to hear the messages
 		//Human-like, sorta, heard by those who understand humans.
 		var/rendered_a
 		//Speech distorted, heard by those who do not understand AIs.
@@ -88,7 +87,6 @@
 			rendered_a = "<span class='game say'><span class='name'>[name]</span> [verb], <span class='message'>\"[message]\"</span></span>"
 			rendered_b = "<span class='game say'><span class='name'>[voice_name]</span> [verb], <span class='message'>\"[message_stars]\"</span></span>"
 			src << "<i><span class='game say'>Holopad transmitted, <span class='name'>[real_name]</span> [verb], <span class='message'><span class='body'>\"[message]\"</span></span></span></i>"//The AI can "hear" its own message.
-		if(hologram.bellied) hologram.bellied.show_message(rendered_a, 2) //VOREStation Add so holobellied people can hear
 		var/list/listeners = get_mobs_and_objs_in_view_fast(get_turf(T), world.view)
 		var/list/listening = listeners["mobs"]
 		var/list/listening_obj = listeners["objs"]
@@ -113,8 +111,6 @@
 
 /mob/living/silicon/ai/proc/holopad_emote(var/message) //This is called when the AI uses the 'me' verb while using a holopad.
 
-	log_emote("[key_name(src)] : [message]")
-
 	message = trim(message)
 
 	if (!message)
@@ -125,7 +121,6 @@
 		var/rendered = "<span class='game say'><span class='name'>[name]</span> <span class='message'>[message]</span></span>"
 		src << "<i><span class='game say'>Holopad action relayed, <span class='name'>[real_name]</span> <span class='message'>[message]</span></span></i>"
 		var/obj/effect/overlay/aiholo/hologram = T.masters[src] //VOREStation Add for people in the hologram to hear the messages
-		if(hologram.bellied) hologram.bellied.show_message(rendered, 2) //VOREStation Add so holobellied people can hear
 
 		//var/obj/effect/overlay/hologram = T.masters[src] //VOREStation edit. Done above.
 		var/list/in_range = get_mobs_and_objs_in_view_fast(get_turf(hologram), world.view, 2) //Emotes are displayed from the hologram, not the pad
@@ -143,6 +138,8 @@
 			spawn(0)
 				if(O)
 					O.see_emote(src, message)
+
+		log_emote("(HPAD) [message]", src)
 
 	else //This shouldn't occur, but better safe then sorry.
 		src << "No holopad connected."
