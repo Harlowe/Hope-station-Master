@@ -176,3 +176,12 @@
 	materials = list(DEFAULT_WALL_MATERIAL = 15000, "glass" = 5000)
 	build_path = /obj/item/weapon/storage/part_replacer
 	sort_string = "CBAAA"
+
+/datum/design/item/stock_part/BS_RPED
+	name = "Bluespace RPED"
+	desc = "Powered by bluespace technology, this RPED variant can upgrade buildings from a distance, without needing to remove the panel first."
+	id = "bs_rped"
+	req_tech = list(TECH_ENGINEERING = 6, bluespace = 3)
+	materials = list(DEFAULT_WALL_MATERIAL = 20000, "glass" = 5000, "silver"= 2500)
+	build_path = /obj/item/weapon/storage/part_replacer/bluespace
+	sort_string = "CBAAB"

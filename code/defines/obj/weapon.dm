@@ -399,6 +399,27 @@
 	display_contents_with_number = 1
 	max_w_class = ITEMSIZE_NORMAL
 	max_storage_space = 100
+	var/works_from_distance = 0
+
+/obj/item/weapon/storage/part_replacer/afterattack(obj/machinery/T as obj, mob/living/carbon/human/user as mob, flag, params)
+	if(flag)
+		return
+	else if(works_from_distance)
+		if(istype(T))
+			if(T.component_parts)
+				T.default_part_replacement(user, src)
+				user.Beam(T,icon_state="rped_upgrade",icon='icons/effects/effects.dmi',time=5)
+	return
+
+/obj/item/weapon/storage/part_replacer/bluespace
+	name = "bluespace rapid part exchange device"
+	desc = "A version of the RPED that allows for replacement of parts and scanning from a distance, along with higher capacity for parts."
+	icon_state = "BS_RPED"
+	w_class = ITEMSIZE_NORMAL
+	storage_slots = 400
+	max_w_class = ITEMSIZE_NORMAL
+	max_storage_space = 300
+	works_from_distance = 1
 
 /obj/item/weapon/stock_parts
 	name = "stock part"

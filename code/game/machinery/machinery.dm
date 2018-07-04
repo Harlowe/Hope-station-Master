@@ -297,9 +297,13 @@ Class Procs:
 		return 0
 	if(!component_parts)
 		return 0
-	if(panel_open)
+	if(panel_open || R.works_from_distance)
 		var/obj/item/weapon/circuitboard/CB = circuit
 		var/P
+		if(R.works_from_distance)
+			user << "<span class='notice'>Following parts detected in the machine:</span>"
+			for(var/var/obj/item/C in component_parts) //var/var/obj/item/C?
+				user << "<span class='notice'>    [C.name]</span>"
 		for(var/obj/item/weapon/stock_parts/A in component_parts)
 			for(var/T in CB.req_components)
 				if(ispath(A.type, T))
@@ -329,7 +333,7 @@ Class Procs:
 		return FALSE
 	if(panel_open)
 		return FALSE // Close panel first!
-	playsound(loc, W.usesound, 50, 1)	
+	playsound(loc, W.usesound, 50, 1)
 	var/actual_time = W.toolspeed * time
 	if(actual_time != 0)
 		user.visible_message( \
